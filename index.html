@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#14120f"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>REQUIEⅢ | エンディング判定</title>
+<style>
+:root{--bg:#14120f;--paper:#eee2c9;--ink:#332b22;--gold:#b99756;--wine:#622c31;--line:#c5ae86}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#393027,#14120f 70%);font-family:Georgia,"Yu Mincho","Hiragino Mincho ProN",serif;color:var(--paper)}
+main{max-width:950px;margin:auto;padding:26px 14px 80px}.mast{text-align:center;padding:34px 8px 25px;border-bottom:1px solid #736046}
+.kicker{color:var(--gold);letter-spacing:.26em;font:12px system-ui}.mast h1{font-size:clamp(32px,7vw,57px);font-weight:400;letter-spacing:.12em;margin:10px 0}.mast p{font-size:13px;color:#bfb29b;line-height:1.8}
+.panel{background:linear-gradient(135deg,#f5ead3,#e8d8b7);color:var(--ink);border:1px solid #a98a5b;border-radius:4px;margin-top:20px;padding:22px 20px;box-shadow:0 8px 30px #0005}
+h2{font-size:19px;font-weight:500;border-bottom:1px solid var(--line);padding-bottom:12px;margin:0 0 15px;letter-spacing:.05em}h3{font-size:16px;margin:14px 0 9px}
+.hint{font:12px/1.7 system-ui,sans-serif;color:#746452}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px 18px}
+.field{min-width:0}.field label{display:block;font-size:13px;font-weight:700;margin:0 0 7px}
+select,input[type=number]{width:100%;border:1px solid #b49b73;border-radius:3px;padding:11px 9px;background:#fff9eb;color:#332c23;font:15px "Yu Gothic",system-ui}
+fieldset{border:1px solid #c9b28a;margin:13px 0;padding:13px 14px}legend{font-weight:bold;font-size:13px;padding:0 7px}.survive{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.survive label{display:flex;align-items:center;gap:7px;padding:10px 6px;background:#fff8e9;border:1px solid #d8c5a5;font:13px system-ui;cursor:pointer}
+.survive input{accent-color:#653038;width:19px;height:19px}.survive label:has(input:checked){background:#e6d0a6;border-color:#8c633c;box-shadow:inset 0 0 0 1px #8c633c}.survive label:has(input:not(:checked)){color:#8d8171}.alive-count{font:13px system-ui;color:#6d503b;margin:7px 0 2px}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:19px}
+button{cursor:pointer;border:1px solid #a98a5b;border-radius:3px;background:#6a3036;color:#fff3dc;padding:14px 19px;font-weight:700;font-size:15px;flex:1}button.secondary{background:transparent;color:#56352b;flex:0 0 auto}
+.score{display:flex;justify-content:space-around;gap:8px;text-align:center;padding:13px;background:#fdf5e4;border:1px solid #d5bd92;margin:12px 0}.score b{display:block;font-size:29px;color:#673137}.score small{font:12px system-ui}
+.result{margin-top:24px}.result.hidden{display:none}.end{padding:13px 15px;border-left:3px solid #81444b;background:#fff8e9;margin:8px 0}.end .id{font:11px ui-monospace,monospace;color:#896b4e;letter-spacing:.04em;word-break:break-all}.end .name{font-size:16px;font-weight:bold;margin-top:4px}.end .sub{font:12px/1.6 system-ui;color:#786b5b;margin-top:5px}
+.note{padding:11px 13px;background:#efe0c3;border:1px dashed #aa8b63;color:#614d39;font:12px/1.7 system-ui}
+.empty{color:#7d6a54;font:13px system-ui}.tag{display:inline-block;font:11px system-ui;padding:3px 7px;background:#e3cfa9;margin-left:7px;border-radius:2px}
+.section-head{display:flex;align-items:center;gap:9px;margin-top:25px}.section-head span{font:12px system-ui;color:#9c835f}
+footer{font:12px/1.7 system-ui;text-align:center;color:#a4977f;margin-top:25px}
+@media(max-width:640px){.grid{grid-template-columns:1fr}.survive{grid-template-columns:repeat(2,1fr)}.panel{padding:18px 14px}}
+@media print{body{background:white;color:black}.mast{color:black}.panel{box-shadow:none}.buttons,.input-panel{display:none}.result{display:block}}
+
+.story-text{margin-top:16px;border-top:1px solid #c7ad82;padding-top:14px;font-size:15px;line-height:2.1;letter-spacing:.02em;white-space:normal}.story-text p{margin:0 0 1.15em}.story-text p:last-child{margin-bottom:0}.story-notice{margin-top:12px;padding:11px;background:#f1e3c9;border:1px solid #c7ad82;font-size:13px;line-height:1.8}
+/* Smartphone-first refinements */
+html{scroll-behavior:smooth}body{overflow-x:hidden}main{width:100%;min-width:0;padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.panel{overflow-wrap:anywhere}select,button,input{touch-action:manipulation}select{min-height:50px;font-size:16px!important;max-width:100%;-webkit-appearance:none;appearance:none;padding:12px 38px 12px 12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='12' viewBox='0 0 16 12'%3E%3Cpath d='m2 3 6 6 6-6' fill='none' stroke='%236b4634' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center}
+button{min-height:48px;touch-action:manipulation}.survive label{min-height:52px;user-select:none;-webkit-user-select:none;border-radius:5px}.survive input{flex:none;width:23px;height:23px}.survive label:has(input:disabled){opacity:.8;cursor:not-allowed}
+#result{scroll-margin-top:12px}#result .end{overflow-wrap:anywhere}#result .id{font-size:11px;line-height:1.5}.score{flex-wrap:wrap}
+#mobileBar{display:none}.tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.tools button{flex:0 1 auto;min-height:40px;padding:8px 12px;font-size:13px;background:#f9edda;color:#604434}
+#mobileSummary{display:none}.result-actions{display:flex;flex-wrap:wrap;gap:8px}
+@media(max-width:640px){
+ main{padding:0 10px calc(94px + env(safe-area-inset-bottom))}.mast{padding:24px 6px 18px}.mast h1{font-size:39px;letter-spacing:.08em}.mast p{font-size:12px}.panel{padding:18px 13px;margin-top:13px;border-radius:8px}h2{font-size:18px}h3{font-size:15px}.field label{font-size:14px;line-height:1.5}
+ .grid{gap:15px}.survive{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.survive label{font-size:15px;padding:12px 9px;min-height:56px}.survive input{width:24px;height:24px}fieldset{margin:10px 0;padding:12px 10px}.hint{font-size:12px}.end{padding:14px 11px}.end .name{font-size:16px}.end .id{font-size:10px}.section-head{margin-top:21px}
+ .buttons button{min-width:0}.input-panel .buttons{display:none}
+ #mobileBar{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:50;gap:9px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#191510ee;border-top:1px solid #9c784b;box-shadow:0 -5px 25px #0007;align-items:center;backdrop-filter:blur(12px)}
+ #mobileBar button{min-height:52px;font:700 16px system-ui;flex:1}#mobileBar .secondary{flex:0 0 auto;padding:10px 13px;background:#3a2c25;color:#eee0c4}
+ #mobileSummary{display:block;font:12px/1.5 system-ui;color:#e3d4b7;padding:7px 2px 0;text-align:center}
+}
+@media print{#mobileBar,#mobileSummary,.tools{display:none!important}main{padding-bottom:0}}
+</style></head><body><main>
+<header class="mast"><div class="kicker">ENDING JUDGMENT · WEB EDITION</div><h1>REQUIEⅢ</h1><p>選択・生存者・犯人の勝敗を入力し、<br>大エンディング → 条件エンディング → 個別エンディング → 最終エピローグの順に判定します。</p></header>
+<section class="panel input-panel"><h2>Ⅰ. キャラクターの選択</h2><div class="grid">
+<div class="field"><label for="loyalty">ルカ｜誰に忠誠を誓ったか</label><select id="loyalty"><option value="carlo">カルロ</option><option value="jonah">ジョナ</option><option value="biagio">ビアージョ</option><option value="other">その他（レギオン＋1）</option></select></div>
+<div class="field"><label for="carlo">カルロ｜何を選んだか</label><select id="carlo"><option value="inherit">レギオンを継ぐ</option><option value="family">家族を取る</option></select></div>
+<div class="field"><label for="politics">ダンテ｜誰に政略を使ったか</label><select id="politics"><option value="carlo">カルロ</option><option value="biagio">ビアージョ</option><option value="lucia">ルチア</option><option value="other">その他（レギオン＋1）</option></select></div>
+<div class="field"><label for="bianca">ビアンカ｜子どもを守るための答え</label><select id="bianca"><option value="correct">正解</option><option value="wrong">不正解</option></select></div>
+<div class="field"><label for="trustee">ビアンカ｜誰に託したか</label><select id="trustee"><option value="carlo">カルロ</option><option value="biagio">ビアージョ</option><option value="lucia">ルチア</option><option value="luca">ルカ</option><option value="dante">ダンテ</option><option value="jonah">ジョナ</option></select></div>
+<div class="field"><label for="luciaGuess">ルチア｜犯人の正体</label><select id="luciaGuess"><option value="wrong">不正解</option><option value="correct">正解（犯人拘束時、ルチア生存）</option></select></div>
+<div class="field"><label for="rescued">ビアージョ｜チンピラ救出人数</label><select id="rescued"><option value="0">0人（加点なし）</option><option value="1">1人（＋1）</option><option value="2">2人（＋1）</option><option value="3">3人（＋2・全員救出）</option></select></div>
+</div><p class="hint">犯人が逃げ切った場合は、ルチアが正解していても死亡します。犯人が拘束された場合に限り、ルチアが正解していれば殺害されていても生存扱いになります。ヴァルチャーズ勝利時も、チェックした人物は生存します（他マフィアは解体）。</p></section>
+<section class="panel input-panel"><h2>Ⅱ. 生存者・犯人の勝敗</h2>
+<fieldset><legend>最終的に生き残った人物をチェック</legend><p class="hint">生存した人物だけにチェックを入れてください。チェックなし＝死亡です。初期状態では6人全員が生存しています。</p><div class="tools"><button id="allAlive" type="button">全員生存を選択</button><button id="clearAlive" type="button">チェックを外す</button></div><p id="jsWarning" class="note" role="alert">JavaScriptが無効です。ブラウザの設定をご確認ください。</p><div class="survive" id="survive">
+<label><input type="checkbox" data-person="luca" checked>ルカ</label>
+<label><input type="checkbox" data-person="carlo" checked>カルロ</label>
+<label><input type="checkbox" data-person="dante" checked>ダンテ</label>
+<label><input type="checkbox" data-person="bianca" checked>ビアンカ</label>
+<label><input type="checkbox" data-person="lucia" checked>ルチア</label>
+<label><input type="checkbox" data-person="biagio" checked>ビアージョ</label>
+<label><input type="checkbox" data-person="jonah" disabled>ジョナ（犯人敗北時は死亡）</label>
+</div><noscript><p class="note" role="alert">JavaScriptを有効にしてご利用ください。</p></noscript><p class="alive-count" id="aliveCount">生存者：6人 / 7人</p></fieldset>
+<div class="grid">
+<div class="field"><label for="killer">犯人（ジョナ）は勝ったか</label><select id="killer"><option value="no">いいえ（拘束された）</option><option value="yes">はい（3ラウンド逃げ切った）</option></select></div>
+
+</div><p class="hint">レギオン：生存中のルカ・ダンテ・ビアンカ・カルロ・ルチアが各＋1。ルカ／ダンテがビアージョを選ぶと、その1点はヴァルチャーズ側に移動します。「その他」はレギオン側です。犯人勝利時は生存者を自動確定します。</p>
+<div class="buttons"><button id="calc">集計してエンディングを表示</button><button class="secondary" id="reset" type="button">初期化</button></div></section>
+<section class="panel result hidden" id="result" aria-live="polite"><h2>Ⅲ. エンディング判定結果</h2><div id="scoreArea"></div><div id="warningArea"></div><div id="endArea"></div>
+<div class="buttons result-actions"><button class="secondary" id="copy" type="button">結果をコピー</button><button class="secondary" id="backInput" type="button">入力に戻る</button><button class="secondary" onclick="window.print()" type="button">印刷</button></div></section>
+<footer>REQUIEⅢ · ENDING JUDGMENT v9 · 大エンディング A（6人死亡）本文収録</footer>
+</main><div id="mobileBar"><button id="mobileCalc" type="button">エンディングを判定</button><button id="mobileTop" class="secondary" type="button">入力へ戻る</button></div><script>
+const STORY_MAIN_A_ALL_DEAD="シャッターランドの地下ある円卓の周りに、6つの死体が転がり落ちた。物音ひとつしない静かな館。永遠王の骸が異様な雰囲気を放ち佇んでいる。\nジョナは見事にやり遂げた。いや、今やジョン・クックと呼ぶ方が相応しいだろう。二つの魂は混ざり合い、ジョナの意識は消えつつあった。\n彼が地下室の壁に手を当てると、壁の一部が開いた。奥には配電室のようなものが見える。\nジョン・クックが電源を入れると、一斉に全ての電灯が灯り、閉まっていた館のシャッターが開いていく。命が宿るようにシャッターランドの灯りが、全ての窓から外へ向かって放たれた。\n館のあるじは、1階のドアを開け悠々と外へ出て、そして笑った。\n「レギオンは死んだ！そして私は帰ってきた！Requiemがある限り、ジェイクは何度でも蘇る！すまない我が子どもたちよ。恨むならレオーネを恨め。その魂が安らかならんことを…。」";
+document.getElementById("jsWarning").style.display="none";
+const characters=[["luca","ルカ"],["carlo","カルロ"],["dante","ダンテ"],["bianca","ビアンカ"],["lucia","ルチア"],["biagio","ビアージョ"],["jonah","ジョナ"]];
+const names=Object.fromEntries(characters);
+const $=id=>document.getElementById(id);
+const val=id=>$(id).value;
+const el=(id,name,sub="")=>({id,name,sub});
+let lastText=""; let tieWinner="legion";
+
+const alive=id=>document.querySelector(`[data-person="${id}"]`).checked;
+function updateAliveCount(){const n=characters.filter(([id])=>alive(id)).length;$("aliveCount").textContent=`生存者：${n}人 / 7人`;}
+function syncKillerVictory(){
+ const win=val("killer")==="yes",lucaLoyal=val("loyalty")==="jonah";
+ for(const [id] of characters){
+  const box=document.querySelector(`[data-person="${id}"]`);
+  if(win){box.checked=(id==="jonah"||(id==="luca"&&lucaLoyal));box.disabled=true;}
+  else {if(id==="jonah")box.checked=false;box.disabled=(id==="jonah" || (id==="lucia"&&(val("luciaGuess")==="correct"&&val("killer")==="no")));if(id==="lucia"&&(val("luciaGuess")==="correct"&&val("killer")==="no"))box.checked=true;}
+ }
+ $("survive").closest("fieldset").querySelector(".hint").textContent=win
+ ? "犯人勝利：ジョナが生存。ルカは忠誠相手がジョナの場合のみ生存。ルチアは正解・不正解にかかわらず死亡します。"
+ : (val("luciaGuess")==="correct"&&val("killer")==="no") ? "犯人が拘束され、ルチアが正体を特定していたため、ルチアは生存扱いです。その他の生存者を選択してください。" : "生存した人物だけにチェックを入れてください。犯人敗北時、ジョナは死亡扱いです。投票で死亡するのは最大3人です。";
+ updateAliveCount();
+}
+$("killer").addEventListener("change",syncKillerVictory);
+$("luciaGuess").addEventListener("change",syncKillerVictory);
+$("loyalty").addEventListener("change",()=>{if(val("killer")==="yes")syncKillerVictory();});
+document.querySelectorAll("#survive input").forEach(e=>e.addEventListener("change",updateAliveCount));
+$("allAlive").addEventListener("click",()=>{if(val("killer")==="yes")return;characters.forEach(([id])=>{if(id!=="jonah")document.querySelector(`[data-person="${id}"]`).checked=true});syncKillerVictory()});
+$("clearAlive").addEventListener("click",()=>{if(val("killer")==="yes")return;characters.forEach(([id])=>document.querySelector(`[data-person="${id}"]`).checked=false);syncKillerVictory()});
+syncKillerVictory();
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function block(title,items){
+  return `<div class="section-head"><h3>${title}</h3><span>${items.length}件</span></div>`+
+  (items.length?items.map(x=>`<div class="end"><div class="id">${x.id}</div><div class="name">${x.name}</div>${x.sub?`<div class="sub">${x.sub}</div>`:""}${x.story?`<div class="story-text">${x.story.split("\n").map(p=>`<p>${escapeHtml(p)}</p>`).join("")}</div>`:""}${x.storyNotice?`<div class="story-notice">${escapeHtml(x.storyNotice)}</div>`:""}</div>`).join(""):`<p class="empty">該当なし</p>`);
+}
+function calculate(){
+ const loyalty=val("loyalty"),carlo=val("carlo"),politics=val("politics"),correct=val("bianca")==="correct",trustee=val("trustee"),rescued=+val("rescued"),luciaCorrect=(val("luciaGuess")==="correct"&&val("killer")==="no"),killer=val("killer")==="yes";
+ if(killer)syncKillerVictory();
+ const lucaAl=alive("luca"),danteAl=alive("dante"),biagioAl=alive("biagio");
+ const bonusLucaLeg=lucaAl&&["carlo","other"].includes(loyalty)?1:0, bonusLucaV=lucaAl&&loyalty==="biagio"?1:0;
+ const bonusDanteLeg=danteAl&&politics!=="biagio"?1:0, bonusDanteV=danteAl&&politics==="biagio"?1:0;
+ const fixedLegion=(alive("bianca")?1:0)+(alive("carlo")?1:0)+(alive("lucia")?1:0);
+ const legion=fixedLegion+bonusLucaLeg+bonusDanteLeg;
+ const vultures=biagioAl?1+(rescued>=3?2:rescued>=1?1:0)+bonusLucaV+bonusDanteV:0;
+ const trusteeAlive=alive(trustee);
+ const kingDestroyed=correct&&(alive("bianca")||(!alive("bianca")&&trusteeAlive&&trustee!=="jonah"));
+ const warnings=[];
+ if(luciaCorrect)warnings.push("犯人が拘束され、ルチアが正体を正解：殺害されていた場合もルチアは生存扱いです。");
+ // 犯人敗北の場合、投票で死亡する人数は最大3人。
+ // ジョナの死亡は犯人敗北として別扱いにし、他の6人のうち少なくとも3人が生存する必要がある。
+ if(!killer){
+   const nonJonahAlive=characters.filter(([id])=>id!=="jonah"&&alive(id)).length;
+   if(nonJonahAlive<3){
+     $("scoreArea").innerHTML="";
+     $("warningArea").innerHTML='<div class="note" role="alert">入力条件が成立しません。犯人敗北時、投票による死亡は最大3人のため、ジョナ以外の6人のうち3人以上を生存にチェックしてください。<br>この状態ではエンディングを判定しません。</div>';
+     $("endArea").innerHTML="";
+     $("result").classList.remove("hidden");
+     $("result").scrollIntoView({behavior:"smooth",block:"start"});
+     return;
+   }
+ }
+ if(!alive("bianca")&&trustee==="jonah"&&correct)warnings.push("ビアンカの託し先がジョナです。本体破壊の代理成功は認めない仮判定です。");
+ let faction;
+ if(killer) faction="culprit";
+ else if(legion===0&&vultures===0){
+   $("scoreArea").innerHTML="";
+   $("warningArea").innerHTML='<div class="note" role="alert">勢力ポイントが両方0点のため、勝敗を判定できません。生存者の入力を確認してください。</div>';
+   $("endArea").innerHTML="";
+   $("result").classList.remove("hidden");return;
+ }
+ else if(!biagioAl||legion>vultures) faction="legion";
+ else if(vultures>legion) faction="vultures";
+ else { faction=tieWinner; warnings.push("勢力点が同点です。結果画面で同点勝者を選べます。");}
+ // 大エンディング：手書きの A/B/C および分岐 a/b/c を反映
+ let main=[];
+ if(faction==="culprit") {
+   const entry=el("MAIN_A_JOHN_COOK_END","A｜ジョン・クック END");
+   if(!alive("luca"))entry.story=STORY_MAIN_A_ALL_DEAD;
+   else entry.storyNotice="ルカ生存のため、6つの死体が登場する本文は表示しません。この分岐の本文は未登録です。";
+   main=[entry];
+ }
+ else if(faction==="legion"){
+   let sub;
+   if(alive("carlo")&&carlo==="inherit")sub=["a","カルロ","MAIN_B_A_CARLO_END"];
+   else if(alive("lucia"))sub=["b","ルチア","MAIN_B_B_LUCIA_END"];
+   else if(alive("dante")&&politics!=="biagio")sub=["c","ダンテ","MAIN_B_C_DANTE_END"];
+   else sub=["d","ボス未確定","MAIN_B_UNRESOLVED_END"];
+   main=[el(sub[2],`B｜レギオン END — ${sub[0]} ${sub[1]}`,sub[0]==="d"?"レギオン勝利／ボス未確定（正式な大エンディング）":"")];
+ }else{
+   const danteBoss=alive("dante")&&politics==="biagio";
+   main=[el(danteBoss?"MAIN_C_B_DANTE_END":"MAIN_C_A_BIAGIO_END",`C｜ヴァルチャーズ END — ${danteBoss?"b ダンテ":"a ビアージョ"}`)];
+ }
+ // 条件エンディング：確定4種類。条件不成立なら表示しない。
+ const conditions=[];
+ if(faction==="culprit"&&loyalty==="jonah"&&alive("luca"))
+   conditions.push(el("CONDITION_A_LUCA_LOYALTY_END","条件A｜ルカの忠誠","ジョナに忠誠を誓い、犯人勝利でルカも生存。"));
+ if(faction!=="culprit"&&kingDestroyed){
+   if(alive("bianca"))conditions.push(el("CONDITION_B_KING_DESTROYED_BIANCA_END","条件B｜永遠王の破壊 ― ビアンカ","ビアンカ生存・破壊成功。"));
+   else conditions.push(el("CONDITION_B_KING_DESTROYED_TRUSTEE_END","条件B｜永遠王の破壊 ― 託す",`${names[trustee]}に託して破壊成功。`));
+ }
+ if(faction==="legion"&&rescued>0)
+   conditions.push(el("CONDITION_C_HENCHMEN_RESCUED_END","条件C｜ビアージョの救出",`${rescued}人救出。レギオン勝利時に追加。`));
+ // 個別エンディング：指定の分岐以外は追加しない。
+ const individual=[];
+ individual.push(el(alive("luca")?"LUCA_ALIVE_END":"LUCA_DEAD_END",`ルカ｜${alive("luca")?"生存":"死亡"} END`,alive("luca")?`忠誠相手：${names[loyalty]||"その他"}`:""));
+ if(!alive("carlo"))individual.push(el("CARLO_DEAD_END","カルロ｜死亡 END"));
+ else if(carlo==="family")individual.push(el(alive("bianca")?"CARLO_FAMILY_BIANCA_ALIVE_END":"CARLO_FAMILY_BIANCA_DEAD_END",`カルロ｜家族を選択・ビアンカ${alive("bianca")?"生存":"死亡"}`));
+ const politicsSuccess=alive("dante")&&((faction==="legion"&&["carlo","lucia"].includes(politics))||(faction==="vultures"&&politics==="biagio"));
+ if(!alive("dante"))individual.push(el("DANTE_DEAD_END","ダンテ｜死亡 END"));
+ else if(!politicsSuccess)individual.push(el("DANTE_POLITICS_FAIL_END","ダンテ｜政略失敗 END"));
+ individual.push(!alive("bianca")?el("BIANCA_DEAD_END","ビアンカ｜死亡 END"):
+   !alive("carlo")?el("BIANCA_CARLO_DEAD_END","ビアンカ｜生存・カルロ死亡 END"):
+   carlo==="family"?el("BIANCA_FAMILY_END","ビアンカ｜生存・カルロ家族 END"):
+   main[0].id==="MAIN_B_A_CARLO_END"?el("BIANCA_CARLO_BOSS_END","ビアンカ｜生存・カルロがボス END"):
+   null);
+ // カルロが継承を選んでも実際にボスにならなければ、ビアンカの該当個別ENDはない。
+ for(let i=individual.length-1;i>=0;i--)if(individual[i]===null)individual.splice(i,1);
+ if(!alive("lucia"))individual.push(el("LUCIA_DEAD_END","ルチア｜死亡 END"));
+ else if(faction==="vultures")individual.push(el("LUCIA_VULTURES_END","ルチア｜ヴァルチャーズ勝利 END"));
+ else if(main[0].id==="MAIN_B_A_CARLO_END")individual.push(el("LUCIA_CARLO_BOSS_END","ルチア｜カルロがボス END"));
+ else if(main[0].id==="MAIN_B_C_DANTE_END")individual.push(el("LUCIA_DANTE_BOSS_END","ルチア｜ダンテがボス END"));
+ if(!alive("biagio"))individual.push(el("BIAGIO_DEAD_END","ビアージョ｜死亡 END"));
+ else if(faction==="legion")individual.push(el("BIAGIO_LEGION_VICTORY_END","ビアージョ｜レギオン勝利 END"));
+ if(!killer)individual.push(el("JONAH_DEAD_END","ジョナ｜死亡（犯人敗北） END"));
+ // 最終エピローグ：C-1 と C-2 は独立した追加条件
+ const epilogue=[];
+ if(faction==="culprit")epilogue.push(el("EPILOGUE_A_CHILD_REVENGE_END","A｜ビアンカの子ども・復讐エピローグ","大END Aで必ず発生。"));
+ if(faction==="legion"&&!kingDestroyed)epilogue.push(el("EPILOGUE_B_CHILD_JOHN_END","B｜ビアンカの子どもにジョン・クック","大END Bで永遠王の破壊失敗時に発生。"));
+ if(faction==="vultures"){
+   if(!kingDestroyed)epilogue.push(el("EPILOGUE_C_1_BIAGIO_JOHN_END","C-1｜ビアージョにジョン・クック","大END Cで永遠王の破壊失敗時に発生。"));
+   if(!alive("bianca")&&!alive("carlo"))epilogue.push(el("EPILOGUE_C_2_CHILD_REVENGE_END","C-2｜ビアンカの子ども・復讐エピローグ","Cエンディング ＋ ビアンカとカルロが両方死亡。C-1と同時発生可。"));
+ }
+ if(faction==="vultures")warnings.push("ヴァルチャーズ勝利：生存チェックがある人物は生存のままです。レギオンなど他のマフィア組織は解体されます（死亡扱いにはしません）。");
+ const all=[["1. 大エンディング",main],["2. 条件エンディング",conditions],["3. 個別エンディング",individual],["4. 最終エピローグ",epilogue]];
+ $("scoreArea").innerHTML=killer?'<div class="score"><div><small>犯人勝利</small><b>YES</b></div><div><small>勢力判定</small><b>省略</b></div></div>':`<div class="score"><div><small>レギオン勢力</small><b>${legion}</b></div><div><small>ヴァルチャーズ勢力</small><b>${vultures}</b></div></div><p class="hint">レギオン：ビアンカ${alive("bianca")?1:0} ＋ カルロ${alive("carlo")?1:0} ＋ ルチア${alive("lucia")?1:0} ＋ ルカ${bonusLucaLeg} ＋ ダンテ${bonusDanteLeg}<br>ヴァルチャーズ：ビアージョ基礎${biagioAl?1:0} ＋ 救出${biagioAl?(rescued>=3?2:rescued>=1?1:0):0} ＋ ルカ${bonusLucaV} ＋ ダンテ${bonusDanteV}</p>`;
+ if(!killer&&legion===vultures&&biagioAl){$("scoreArea").innerHTML+=`<div class="field"><label for="tie">同点の場合の勝利勢力（コイントス結果）</label><select id="tie"><option value="legion">レギオン</option><option value="vultures">ヴァルチャーズ</option></select></div>`;$("tie").value=tieWinner;$("tie").onchange=()=>{tieWinner=val("tie");calculate()};}
+ $("warningArea").innerHTML=warnings.length?`<div class="note">${warnings.map(w=>"※ "+w).join("<br>")}</div>`:"";
+ $("endArea").innerHTML=all.map(([t,i])=>block(t,i)).join("")+'<div class="note" style="margin-top:18px"><b>判定仕様</b>：ルチア正解時は犯人逮捕・ルチア生存。レギオン勝利／ボス未確定は正式分岐。ヴァルチャーズ勝利では他マフィア解体（生存者は生存）。犯人敗北時は投票死亡最大3人。条件・個別・エピローグは該当しなければ表示されません。シナリオ本文は大END A（ジョナ勝利・ルカ死亡）のみ登録済みです。</div>';
+ lastText=all.map(([t,items])=>t+"\n"+(items.map(x=>x.id+" : "+x.name+(x.story?"\n\n"+x.story:"")+(x.storyNotice?"\n"+x.storyNotice:"")).join("\n")||"該当なし")).join("\n\n");
+ $("result").classList.remove("hidden");$("result").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("calc").onclick=calculate;
+$("mobileCalc").onclick=calculate;
+$("mobileTop").onclick=()=>document.querySelector(".input-panel").scrollIntoView({behavior:"smooth",block:"start"});
+$("backInput").onclick=()=>document.querySelector(".input-panel").scrollIntoView({behavior:"smooth",block:"start"});
+$("reset").onclick=()=>{document.querySelectorAll("#survive input").forEach(e=>e.checked=e.dataset.person!=="jonah");updateAliveCount();["loyalty","carlo","politics","bianca","trustee","rescued","killer","luciaGuess"].forEach(x=>$(x).selectedIndex=0);syncKillerVictory();tieWinner="legion";$("result").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"});};
+$("copy").onclick=async()=>{
+ const label=$("copy");
+ try{
+   if(!navigator.clipboard||!navigator.clipboard.writeText)throw new Error("fallback");
+   await navigator.clipboard.writeText(lastText);
+   label.textContent="コピーしました";setTimeout(()=>label.textContent="結果をコピー",1600);
+ }catch(e){
+   const t=document.createElement("textarea");t.value=lastText;t.setAttribute("readonly","");t.style.cssText="position:fixed;top:20%;left:5%;width:90%;height:50%;z-index:9999;font-size:16px";
+   document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,t.value.length);
+   try{document.execCommand("copy");label.textContent="コピーしました";setTimeout(()=>label.textContent="結果をコピー",1600)}
+   catch(e){window.prompt("結果を選択してコピーしてください",lastText)}
+   t.remove();
+ }
+};
+</script></body></html>
