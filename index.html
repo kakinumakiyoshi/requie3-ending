@@ -69,9 +69,10 @@ button{min-height:48px;touch-action:manipulation}.survive label{min-height:52px;
 <div class="buttons"><button id="calc">集計してエンディングを表示</button><button class="secondary" id="reset" type="button">初期化</button></div></section>
 <section class="panel result hidden" id="result" aria-live="polite"><h2>Ⅲ. エンディング判定結果</h2><div id="scoreArea"></div><div id="warningArea"></div><div id="endArea"></div>
 <div class="buttons result-actions"><button class="secondary" id="copy" type="button">結果をコピー</button><button class="secondary" id="backInput" type="button">入力に戻る</button><button class="secondary" onclick="window.print()" type="button">印刷</button></div></section>
-<footer>REQUIEⅢ · ENDING JUDGMENT v9 · 大エンディング A（6人死亡）本文収録</footer>
+<footer>REQUIEⅢ · ENDING JUDGMENT v9 · 大エンディング A（ルカ死亡／ルカ生存）本文収録</footer>
 </main><div id="mobileBar"><button id="mobileCalc" type="button">エンディングを判定</button><button id="mobileTop" class="secondary" type="button">入力へ戻る</button></div><script>
-const STORY_MAIN_A_ALL_DEAD="シャッターランドの地下ある円卓の周りに、6つの死体が転がり落ちた。物音ひとつしない静かな館。永遠王の骸が異様な雰囲気を放ち佇んでいる。\nジョナは見事にやり遂げた。いや、今やジョン・クックと呼ぶ方が相応しいだろう。二つの魂は混ざり合い、ジョナの意識は消えつつあった。\n彼が地下室の壁に手を当てると、壁の一部が開いた。奥には配電室のようなものが見える。\nジョン・クックが電源を入れると、一斉に全ての電灯が灯り、閉まっていた館のシャッターが開いていく。命が宿るようにシャッターランドの灯りが、全ての窓から外へ向かって放たれた。\n館のあるじは、1階のドアを開け悠々と外へ出て、そして笑った。\n「レギオンは死んだ！そして私は帰ってきた！Requiemがある限り、ジェイクは何度でも蘇る！すまない我が子どもたちよ。恨むならレオーネを恨め。その魂が安らかならんことを…。」";
+const STORY_MAIN_A_ALL_DEAD="シャッターランドの地下にある円卓の周りに、6つの死体が転がり落ちた。物音ひとつしない静かな館。永遠王の骸が、先ほどまでと何ひとつ変わらぬ姿で鎮座していた。\nジョナはヤギのマスクを取ると、額に血と汗を滲ませながら、黒い殺気を放ち立ち尽くしている。ジョナは見事にやり遂げた。いや、今やジョン・クックと呼ぶ方が相応しいだろう。二つの魂は混ざり合い、ジョナの意識は消えつつあった。\n彼が地下室の壁に手を当てると、壁の一部が開いた。奥には配電室のようなものが見える。\nジョン・クックが電源を入れると、一斉に全ての電灯が灯り、閉まっていた館のシャッターが開いていく。命が宿るようにシャッターランドの灯りが、全ての窓から外へ向かって放たれた。\n館のあるじは、1階のドアから悠々と外へ出て、そして笑った。\n「レギオンは死んだ！そして私は帰ってきた！Requiemがある限り、ジェイクは何度でも蘇る！すまない我が子どもたちよ。恨むならレオーネを恨め。その魂が安らかならんことを…。」";
+const STORY_MAIN_A_LUCA_ALIVE="シャッターランドの地下にある円卓の周りに、5つの死体が転がり落ちた。物音ひとつしない静かな館。永遠王の骸が、先ほどまでと何ひとつ変わらぬ姿で鎮座していた。\nジョナはヤギのマスクを取ると、額に血と汗を滲ませながら、黒い殺気を放ち立ち尽くしている。ジョナは見事にやり遂げた。いや、今やジョン・クックと呼ぶ方が相応しいだろう。二つの魂は混ざり合い、ジョナの意識は消えつつあった。\n彼が地下室の壁に手を当てると、壁の一部が開いた。奥には配電室のようなものが見える。\nジョン・クックが電源を入れると、一斉に全ての電灯が灯り、閉まっていた館のシャッターが開いていく。命が宿るようにシャッターランドの灯りが、全ての窓から外へ向かって放たれた。\nジョナ影には、イヌのマスクを手に持ったルカが1人佇んでいる。「あなたは、父なんですか？」ルカの問いに、ジョナは微笑んだ。さっきまでそこにいたはずの男とはまるで違う雰囲気に、ルカは全てを察し、新たな王に跪いた。\n館のあるじは、1階のドアから悠々と外へ出て、そして笑った。\n「レギオンは死んだ！そして私は帰ってきた！Requiemがある限り、ジェイクは何度でも蘇る！すまない我が子どもたちよ。恨むならレオーネを恨め。その魂が安らかならんことを…。」";
 document.getElementById("jsWarning").style.display="none";
 const characters=[["luca","ルカ"],["carlo","カルロ"],["dante","ダンテ"],["bianca","ビアンカ"],["lucia","ルチア"],["biagio","ビアージョ"],["jonah","ジョナ"]];
 const names=Object.fromEntries(characters);
@@ -149,7 +150,7 @@ function calculate(){
  if(faction==="culprit") {
    const entry=el("MAIN_A_JOHN_COOK_END","A｜ジョン・クック END");
    if(!alive("luca"))entry.story=STORY_MAIN_A_ALL_DEAD;
-   else entry.storyNotice="ルカ生存のため、6つの死体が登場する本文は表示しません。この分岐の本文は未登録です。";
+   else entry.story=STORY_MAIN_A_LUCA_ALIVE;
    main=[entry];
  }
  else if(faction==="legion"){
@@ -208,7 +209,7 @@ function calculate(){
  $("scoreArea").innerHTML=killer?'<div class="score"><div><small>犯人勝利</small><b>YES</b></div><div><small>勢力判定</small><b>省略</b></div></div>':`<div class="score"><div><small>レギオン勢力</small><b>${legion}</b></div><div><small>ヴァルチャーズ勢力</small><b>${vultures}</b></div></div><p class="hint">レギオン：ビアンカ${alive("bianca")?1:0} ＋ カルロ${alive("carlo")?1:0} ＋ ルチア${alive("lucia")?1:0} ＋ ルカ${bonusLucaLeg} ＋ ダンテ${bonusDanteLeg}<br>ヴァルチャーズ：ビアージョ基礎${biagioAl?1:0} ＋ 救出${biagioAl?(rescued>=3?2:rescued>=1?1:0):0} ＋ ルカ${bonusLucaV} ＋ ダンテ${bonusDanteV}</p>`;
  if(!killer&&legion===vultures&&biagioAl){$("scoreArea").innerHTML+=`<div class="field"><label for="tie">同点の場合の勝利勢力（コイントス結果）</label><select id="tie"><option value="legion">レギオン</option><option value="vultures">ヴァルチャーズ</option></select></div>`;$("tie").value=tieWinner;$("tie").onchange=()=>{tieWinner=val("tie");calculate()};}
  $("warningArea").innerHTML=warnings.length?`<div class="note">${warnings.map(w=>"※ "+w).join("<br>")}</div>`:"";
- $("endArea").innerHTML=all.map(([t,i])=>block(t,i)).join("")+'<div class="note" style="margin-top:18px"><b>判定仕様</b>：ルチア正解時は犯人逮捕・ルチア生存。レギオン勝利／ボス未確定は正式分岐。ヴァルチャーズ勝利では他マフィア解体（生存者は生存）。犯人敗北時は投票死亡最大3人。条件・個別・エピローグは該当しなければ表示されません。シナリオ本文は大END A（ジョナ勝利・ルカ死亡）のみ登録済みです。</div>';
+ $("endArea").innerHTML=all.map(([t,i])=>block(t,i)).join("")+'<div class="note" style="margin-top:18px"><b>判定仕様</b>：ルチア正解時は犯人逮捕・ルチア生存。レギオン勝利／ボス未確定は正式分岐。ヴァルチャーズ勝利では他マフィア解体（生存者は生存）。犯人敗北時は投票死亡最大3人。条件・個別・エピローグは該当しなければ表示されません。シナリオ本文は大END A（ジョナ勝利：ルカ死亡版・ルカ生存版）のみ登録済みです。</div>';
  lastText=all.map(([t,items])=>t+"\n"+(items.map(x=>x.id+" : "+x.name+(x.story?"\n\n"+x.story:"")+(x.storyNotice?"\n"+x.storyNotice:"")).join("\n")||"該当なし")).join("\n\n");
  $("result").classList.remove("hidden");$("result").scrollIntoView({behavior:"smooth",block:"start"});
 }
