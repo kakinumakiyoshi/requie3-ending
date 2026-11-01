@@ -133,7 +133,6 @@ function calculate(){
      return;
    }
  }
- if(!alive("bianca")&&trustee==="jonah"&&correct)warnings.push("ビアンカの託し先がジョナです。本体破壊の代理成功は認めない仮判定です。");
  let faction;
  if(killer) faction="culprit";
  else if(legion===0&&vultures===0){
@@ -172,6 +171,9 @@ function calculate(){
    if(alive("bianca"))conditions.push(el("CONDITION_B_KING_DESTROYED_BIANCA_END","条件B｜永遠王の破壊 ― ビアンカ","ビアンカ生存・破壊成功。"));
    else conditions.push(el("CONDITION_B_KING_DESTROYED_TRUSTEE_END","条件B｜永遠王の破壊 ― 託す",`${names[trustee]}に託して破壊成功。`));
  }
+ // ビアンカ死亡・答えは正解・託した相手がジョナ・ジョナが犯人として拘束 → 骸の破壊は失敗
+ if(!killer&&correct&&!alive("bianca")&&trustee==="jonah")
+   conditions.push(el("CONDITION_B_KING_DESTROY_FAILED_JONAH_END","条件B｜永遠王の骸 破壊失敗 ― ジョナに託す","ビアンカ死亡・答えは正解。ジョナに託したが、ジョナが犯人として拘束されたため破壊失敗。"));
  if(faction==="legion"&&rescued>0)
    conditions.push(el("CONDITION_C_HENCHMEN_RESCUED_END","条件C｜ビアージョの救出",`${rescued}人救出。レギオン勝利時に追加。`));
  // 個別エンディング：指定の分岐以外は追加しない。
