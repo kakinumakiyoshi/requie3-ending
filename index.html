@@ -73,6 +73,9 @@ button{min-height:48px;touch-action:manipulation}.survive label{min-height:52px;
 </main><div id="mobileBar"><button id="mobileCalc" type="button">エンディングを判定</button><button id="mobileTop" class="secondary" type="button">入力へ戻る</button></div><script>
 const STORY_MAIN_A_ALL_DEAD="シャッターランドの地下にある円卓の周りに、6つの死体が転がり落ちた。物音ひとつしない静かな館。永遠王の骸が、先ほどまでと何ひとつ変わらぬ姿で鎮座していた。\nジョナはヤギのマスクを取ると、額に血と汗を滲ませながら、黒い殺気を放ち立ち尽くしている。ジョナは見事にやり遂げた。いや、今やジョン・クックと呼ぶ方が相応しいだろう。二つの魂は混ざり合い、ジョナの意識は消えつつあった。\n彼が地下室の壁に手を当てると、壁の一部が開いた。奥には配電室のようなものが見える。\nジョン・クックが電源を入れると、一斉に全ての電灯が灯り、閉まっていた館のシャッターが開いていく。命が宿るようにシャッターランドの灯りが、全ての窓から外へ向かって放たれた。\n館のあるじは、1階のドアから悠々と外へ出て、そして笑った。\n「レギオンは死んだ！そして私は帰ってきた！Requiemがある限り、ジェイクは何度でも蘇る！すまない我が子どもたちよ。恨むならレオーネを恨め。その魂が安らかならんことを…。」";
 const STORY_MAIN_A_LUCA_ALIVE="シャッターランドの地下にある円卓の周りに、5つの死体が転がり落ちた。物音ひとつしない静かな館。永遠王の骸が、先ほどまでと何ひとつ変わらぬ姿で鎮座していた。\nジョナはヤギのマスクを取ると、額に血と汗を滲ませながら、黒い殺気を放ち立ち尽くしている。ジョナは見事にやり遂げた。いや、今やジョン・クックと呼ぶ方が相応しいだろう。二つの魂は混ざり合い、ジョナの意識は消えつつあった。\n彼が地下室の壁に手を当てると、壁の一部が開いた。奥には配電室のようなものが見える。\nジョン・クックが電源を入れると、一斉に全ての電灯が灯り、閉まっていた館のシャッターが開いていく。命が宿るようにシャッターランドの灯りが、全ての窓から外へ向かって放たれた。\nジョナの影には、イヌのマスクを手に持ったルカが1人佇んでいる。「あなたは、父なんですか？」ルカの問いに、ジョナは微笑んだ。さっきまでそこにいたはずの男とはまるで違う雰囲気に、ルカは全てを察し、新たな王に跪いた。\n館のあるじは、1階のドアから悠々と外へ出て、そして笑った。\n「レギオンは死んだ！そして私は帰ってきた！Requiemがある限り、ジェイクは何度でも蘇る！すまない我が子どもたちよ。恨むならレオーネを恨め。その魂が安らかならんことを…。」";
+const STORY_COND_B_BIANCA="円卓で全ての決着がついた時、ビアンカは立ち上がり、何かを確認するように、倒れたジョナへの方へ視線を落とす。そのまま永遠王の骸に銃口を向けると、相手を見据えて引き金を引いた。パァン！という音と共に骸骨の眼は青白く光り、中から雄叫びような悲鳴あがる。頭蓋骨は吹き飛び、長い間この世で転生を繰り返したジョン・クックの魂も、ついに終わりを迎えたようだ。\n「これで、これで大丈夫。私が絶対に守るから」\nそうビアンカが呟くと、ジョナの顔からは殺気が消え、今は穏やかな顔で眠っている。";
+// ○○は、ビアンカが託した相手の名前に置き換える
+const STORY_COND_B_TRUSTEE="円卓で全ての決着がついた時、○○は立ち上がり、何かを確認するように、倒れたジョナへの方へ視線を落とす。そのまま永遠王の骸に銃口を向けると、相手を見据えて引き金を引いた。パァン！という音と共に骸骨の眼は青白く光り、中から雄叫びような悲鳴あがる。頭蓋骨は吹き飛び、長い間この世で転生を繰り返したジョン・クックの魂も、ついに終わりを迎えたようだ。\n「ビアンカ、もう大丈夫だ。」\n肩の荷が降りたように○○が呟くと、ジョナの顔からは殺気が消え、今は穏やかな顔で眠っている。";
 document.getElementById("jsWarning").style.display="none";
 const characters=[["luca","ルカ"],["carlo","カルロ"],["dante","ダンテ"],["bianca","ビアンカ"],["lucia","ルチア"],["biagio","ビアージョ"],["jonah","ジョナ"]];
 const names=Object.fromEntries(characters);
@@ -168,8 +171,8 @@ function calculate(){
  if(faction==="culprit"&&loyalty==="jonah"&&alive("luca"))
    conditions.push(el("CONDITION_A_LUCA_LOYALTY_END","条件A｜ルカの忠誠","ジョナに忠誠を誓い、犯人勝利でルカも生存。"));
  if(faction!=="culprit"&&kingDestroyed){
-   if(alive("bianca"))conditions.push(el("CONDITION_B_KING_DESTROYED_BIANCA_END","条件B｜永遠王の破壊 ― ビアンカ","ビアンカ生存・破壊成功。"));
-   else conditions.push(el("CONDITION_B_KING_DESTROYED_TRUSTEE_END","条件B｜永遠王の破壊 ― 託す",`${names[trustee]}に託して破壊成功。`));
+   if(alive("bianca")){const e=el("CONDITION_B_KING_DESTROYED_BIANCA_END","条件B｜永遠王の破壊 ― ビアンカ","ビアンカ生存・破壊成功。");e.story=STORY_COND_B_BIANCA;conditions.push(e);}
+   else{const e=el("CONDITION_B_KING_DESTROYED_TRUSTEE_END","条件B｜永遠王の破壊 ― 託す",`${names[trustee]}に託して破壊成功。`);e.story=STORY_COND_B_TRUSTEE.split("○○").join(names[trustee]);conditions.push(e);}
  }
  // ビアンカ死亡・答えは正解・託した相手がジョナ・ジョナが犯人として拘束 → 骸の破壊は失敗
  if(!killer&&correct&&!alive("bianca")&&trustee==="jonah")
@@ -211,7 +214,7 @@ function calculate(){
  $("scoreArea").innerHTML=killer?'<div class="score"><div><small>犯人勝利</small><b>YES</b></div><div><small>勢力判定</small><b>省略</b></div></div>':`<div class="score"><div><small>レギオン勢力</small><b>${legion}</b></div><div><small>ヴァルチャーズ勢力</small><b>${vultures}</b></div></div><p class="hint">レギオン：ビアンカ${alive("bianca")?1:0} ＋ カルロ${alive("carlo")?1:0} ＋ ルチア${alive("lucia")?1:0} ＋ ルカ${bonusLucaLeg} ＋ ダンテ${bonusDanteLeg}<br>ヴァルチャーズ：ビアージョ基礎${biagioAl?1:0} ＋ 救出${biagioAl?(rescued>=3?2:rescued>=1?1:0):0} ＋ ルカ${bonusLucaV} ＋ ダンテ${bonusDanteV}</p>`;
  if(!killer&&legion===vultures&&biagioAl){$("scoreArea").innerHTML+=`<div class="field"><label for="tie">同点の場合の勝利勢力（コイントス結果）</label><select id="tie"><option value="legion">レギオン</option><option value="vultures">ヴァルチャーズ</option></select></div>`;$("tie").value=tieWinner;$("tie").onchange=()=>{tieWinner=val("tie");calculate()};}
  $("warningArea").innerHTML=warnings.length?`<div class="note">${warnings.map(w=>"※ "+w).join("<br>")}</div>`:"";
- $("endArea").innerHTML=all.map(([t,i])=>block(t,i)).join("")+'<div class="note" style="margin-top:18px"><b>判定仕様</b>：ルチア正解時は犯人逮捕・ルチア生存。レギオン勝利／ボス未確定は正式分岐。ヴァルチャーズ勝利では他マフィア解体（生存者は生存）。犯人敗北時は投票死亡最大3人。条件・個別・エピローグは該当しなければ表示されません。シナリオ本文は大END A（ジョナ勝利：ルカ死亡版・ルカ生存版）のみ登録済みです。</div>';
+ $("endArea").innerHTML=all.map(([t,i])=>block(t,i)).join("")+'<div class="note" style="margin-top:18px"><b>判定仕様</b>：ルチア正解時は犯人逮捕・ルチア生存。レギオン勝利／ボス未確定は正式分岐。ヴァルチャーズ勝利では他マフィア解体（生存者は生存）。犯人敗北時は投票死亡最大3人。条件・個別・エピローグは該当しなければ表示されません。シナリオ本文は大END A（ルカ死亡版・ルカ生存版）と条件B（永遠王の破壊：ビアンカ／託す）が登録済みです。</div>';
  lastText=all.map(([t,items])=>t+"\n"+(items.map(x=>x.id+" : "+x.name+(x.story?"\n\n"+x.story:"")+(x.storyNotice?"\n"+x.storyNotice:"")).join("\n")||"該当なし")).join("\n\n");
  $("result").classList.remove("hidden");$("result").scrollIntoView({behavior:"smooth",block:"start"});
 }
