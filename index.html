@@ -24,6 +24,7 @@ footer{font:12px/1.7 system-ui;text-align:center;color:#a4977f;margin-top:25px}
 @media(max-width:640px){.grid{grid-template-columns:1fr}.survive{grid-template-columns:repeat(2,1fr)}.panel{padding:18px 14px}}
 @media print{body{background:white;color:black}.mast{color:black}.panel{box-shadow:none}.buttons,.input-panel{display:none}.result{display:block}}
 
+.luca-choice{margin-top:14px;padding:13px 14px;border:1px dashed #aa8b63;background:#f6ecd7}.luca-choice p{margin:0 0 9px;font:14px/1.7 system-ui;color:#5a4433}.luca-choice .buttons{margin-top:6px}.luca-choice button{flex:1}.luca-choice button[aria-pressed=true]{background:#6a3036;color:#fff3dc}
 .story-text{margin-top:16px;border-top:1px solid #c7ad82;padding-top:14px;font-size:15px;line-height:2.1;letter-spacing:.02em;white-space:normal}.story-text p{margin:0 0 1.15em}.story-text p:last-child{margin-bottom:0}.story-notice{margin-top:12px;padding:11px;background:#f1e3c9;border:1px solid #c7ad82;font-size:13px;line-height:1.8}
 /* Smartphone-first refinements */
 html{scroll-behavior:smooth}body{overflow-x:hidden}main{width:100%;min-width:0;padding-bottom:calc(96px + env(safe-area-inset-bottom))}
@@ -76,6 +77,10 @@ const STORY_MAIN_A_LUCA_ALIVE="シャッターランドの地下にある円卓�
 const STORY_COND_B_BIANCA="円卓で全ての決着がついた時、ビアンカは立ち上がり、何かを確認するように、倒れたジョナの方へ視線を落とす。そのまま永遠王の骸に銃口を向けると、相手を見据えて引き金を引いた。パァン！という音と共に骸骨の眼は青白く光り、中から雄叫びのような悲鳴があがる。頭蓋骨は吹き飛び、長い間この世で転生を繰り返したジョン・クックの魂も、ついに終わりを迎えたようだ。\n「これで、これで大丈夫。私が絶対に守るから」\nそうビアンカが呟くと、ジョナの顔からは殺気が消え、今は穏やかな顔で眠っている。";
 // ○○は、ビアンカが託した相手の名前に置き換える
 const STORY_COND_B_TRUSTEE="円卓で全ての決着がついた時、○○は立ち上がり、何かを確認するように、倒れたジョナの方へ視線を落とす。そのまま永遠王の骸に銃口を向けると、相手を見据えて引き金を引いた。パァン！という音と共に骸骨の眼は青白く光り、中から雄叫びのような悲鳴があがる。頭蓋骨は吹き飛び、長い間この世で転生を繰り返したジョン・クックの魂も、ついに終わりを迎えたようだ。\n「ビアンカ、もう大丈夫だ。」\n肩の荷が降りたように○○が呟くと、ジョナの顔からは殺気が消え、今は穏やかな顔で眠っている。";
+// 「ルカ 父と妹の間」の本文（空のあいだは「本文は未登録です」と表示）
+const STORY_LUCA_BETWEEN="";
+const STORY_LUCA_SHOOT="";
+const STORY_LUCA_SPARE="";
 document.getElementById("jsWarning").style.display="none";
 const characters=[["luca","ルカ"],["carlo","カルロ"],["dante","ダンテ"],["bianca","ビアンカ"],["lucia","ルチア"],["biagio","ビアージョ"],["jonah","ジョナ"]];
 const names=Object.fromEntries(characters);
@@ -83,6 +88,7 @@ const $=id=>document.getElementById(id);
 const val=id=>$(id).value;
 const el=(id,name,sub="")=>({id,name,sub});
 let lastText=""; let tieWinner="legion";
+let lucaChoice=null; // 「ルカ 父と妹の間」でルカが選んだ答え（null＝未選択／shoot＝撃つ／spare＝撃たない）
 
 const alive=id=>document.querySelector(`[data-person="${id}"]`).checked;
 function updateAliveCount(){const n=characters.filter(([id])=>alive(id)).length;$("aliveCount").textContent=`生存者：${n}人 / 7人`;}
@@ -106,11 +112,12 @@ $("allAlive").addEventListener("click",()=>{if(val("killer")==="yes")return;char
 $("clearAlive").addEventListener("click",()=>{if(val("killer")==="yes")return;characters.forEach(([id])=>document.querySelector(`[data-person="${id}"]`).checked=false);syncKillerVictory()});
 syncKillerVictory();
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function storyOrNotice(e,text){if(text)e.story=text;else e.storyNotice="本文は未登録です。";return e;}
 function block(title,items){
   return `<div class="section-head"><h3>${title}</h3><span>${items.length}件</span></div>`+
-  (items.length?items.map(x=>`<div class="end"><div class="id">${x.id}</div><div class="name">${x.name}</div>${x.sub?`<div class="sub">${x.sub}</div>`:""}${x.story?`<div class="story-text">${x.story.split("\n").map(p=>`<p>${escapeHtml(p)}</p>`).join("")}</div>`:""}${x.storyNotice?`<div class="story-notice">${escapeHtml(x.storyNotice)}</div>`:""}</div>`).join(""):`<p class="empty">該当なし</p>`);
+  (items.length?items.map(x=>`<div class="end"><div class="id">${x.id}</div><div class="name">${x.name}</div>${x.sub?`<div class="sub">${x.sub}</div>`:""}${x.story?`<div class="story-text">${x.story.split("\n").map(p=>`<p>${escapeHtml(p)}</p>`).join("")}</div>`:""}${x.storyNotice?`<div class="story-notice">${escapeHtml(x.storyNotice)}</div>`:""}${x.choice?`<div class="luca-choice"><p>ルカは、永遠王の骸を――<br><small>ルカ役のプレイヤーが選んでください。</small></p><div class="buttons"><button type="button" class="secondary" data-luca-choice="shoot" aria-pressed="${lucaChoice==="shoot"}">撃つ</button><button type="button" class="secondary" data-luca-choice="spare" aria-pressed="${lucaChoice==="spare"}">撃たない</button></div></div>`:""}</div>`).join(""):`<p class="empty">該当なし</p>`);
 }
-function calculate(){
+function calculate(keepScroll){
  const loyalty=val("loyalty"),carlo=val("carlo"),politics=val("politics"),correct=val("bianca")==="correct",trustee=val("trustee"),rescued=+val("rescued"),luciaCorrect=(val("luciaGuess")==="correct"&&val("killer")==="no"),killer=val("killer")==="yes";
  if(killer)syncKillerVictory();
  const lucaAl=alive("luca"),danteAl=alive("dante"),biagioAl=alive("biagio");
@@ -120,7 +127,11 @@ function calculate(){
  const legion=fixedLegion+bonusLucaLeg+bonusDanteLeg;
  const vultures=biagioAl?1+(rescued>=3?2:rescued>=1?1:0)+bonusLucaV+bonusDanteV:0;
  const trusteeAlive=alive(trustee);
- const kingDestroyed=correct&&(alive("bianca")||(!alive("bianca")&&trusteeAlive&&trustee!=="jonah"));
+ // 特殊条件「ルカ 父と妹の間」：ビアンカ死亡・答え正解・ルカに託した・ルカはジョナに忠誠・ジョナは拘束・ルカ生存
+ const lucaBetween=!killer&&correct&&trustee==="luca"&&loyalty==="jonah"&&!alive("bianca")&&alive("luca");
+ const lucaPending=lucaBetween&&!lucaChoice;
+ // ルカが「撃つ」なら破壊成功、「撃たない」なら破壊失敗
+ const kingDestroyed=lucaBetween?lucaChoice==="shoot":correct&&(alive("bianca")||(!alive("bianca")&&trusteeAlive&&trustee!=="jonah"));
  const warnings=[];
  if(luciaCorrect)warnings.push("犯人が拘束され、ルチアが正体を正解：殺害されていた場合もルチアは生存扱いです。");
  // 犯人敗北の場合、投票で死亡する人数は最大3人。
@@ -170,7 +181,12 @@ function calculate(){
  const conditions=[];
  if(faction==="culprit"&&loyalty==="jonah"&&alive("luca"))
    conditions.push(el("CONDITION_A_LUCA_LOYALTY_END","条件A｜ルカの忠誠","ジョナに忠誠を誓い、犯人勝利でルカも生存。"));
- if(faction!=="culprit"&&kingDestroyed){
+ if(lucaBetween){
+   const between=storyOrNotice(el("CONDITION_B_LUCA_BETWEEN_END","条件B｜ルカ ― 父と妹の間","ビアンカから託されたルカが、ジョナ（父）とビアンカ（妹）の間で、永遠王の骸を撃つかどうかを選ぶ。"),STORY_LUCA_BETWEEN);between.choice=true;conditions.push(between);
+   if(lucaChoice==="shoot")conditions.push(storyOrNotice(el("CONDITION_B_LUCA_SHOOT_END","条件B｜ルカ ― 撃つ","ルカが骸を撃ち、破壊成功。"),STORY_LUCA_SHOOT));
+   if(lucaChoice==="spare")conditions.push(storyOrNotice(el("CONDITION_B_LUCA_SPARE_END","条件B｜ルカ ― 撃たない","ルカは撃たず、破壊失敗。"),STORY_LUCA_SPARE));
+ }
+ else if(faction!=="culprit"&&kingDestroyed){
    if(alive("bianca")){const e=el("CONDITION_B_KING_DESTROYED_BIANCA_END","条件B｜永遠王の破壊 ― ビアンカ","ビアンカ生存・破壊成功。");e.story=STORY_COND_B_BIANCA;conditions.push(e);}
    else{const e=el("CONDITION_B_KING_DESTROYED_TRUSTEE_END","条件B｜永遠王の破壊 ― 託す",`${names[trustee]}に託して破壊成功。`);e.story=STORY_COND_B_TRUSTEE.split("○○").join(names[trustee]);conditions.push(e);}
  }
@@ -204,9 +220,10 @@ function calculate(){
  // 最終エピローグ：C-1 と C-2 は独立した追加条件
  const epilogue=[];
  if(faction==="culprit")epilogue.push(el("EPILOGUE_A_CHILD_REVENGE_END","A｜ビアンカの子ども・復讐エピローグ","大END Aで必ず発生。"));
- if(faction==="legion"&&!kingDestroyed)epilogue.push(el("EPILOGUE_B_CHILD_JOHN_END","B｜ビアンカの子どもにジョン・クック","大END Bで永遠王の破壊失敗時に発生。"));
+ if(lucaPending&&faction!=="culprit")epilogue.push(el("（未確定）","ルカの選択待ち","条件エンディングでルカが「撃つ／撃たない」を選ぶと、エピローグが決まります。"));
+ if(faction==="legion"&&!kingDestroyed&&!lucaPending)epilogue.push(el("EPILOGUE_B_CHILD_JOHN_END","B｜ビアンカの子どもにジョン・クック","大END Bで永遠王の破壊失敗時に発生。"));
  if(faction==="vultures"){
-   if(!kingDestroyed)epilogue.push(el("EPILOGUE_C_1_BIAGIO_JOHN_END","C-1｜ビアージョにジョン・クック","大END Cで永遠王の破壊失敗時に発生。"));
+   if(!kingDestroyed&&!lucaPending)epilogue.push(el("EPILOGUE_C_1_BIAGIO_JOHN_END","C-1｜ビアージョにジョン・クック","大END Cで永遠王の破壊失敗時に発生。"));
    if(!alive("bianca")&&!alive("carlo"))epilogue.push(el("EPILOGUE_C_2_CHILD_REVENGE_END","C-2｜ビアンカの子ども・復讐エピローグ","Cエンディング ＋ ビアンカとカルロが両方死亡。C-1と同時発生可。"));
  }
  if(faction==="vultures")warnings.push("ヴァルチャーズ勝利：生存チェックがある人物は生存のままです。レギオンなど他のマフィア組織は解体されます（死亡扱いにはしません）。");
@@ -215,14 +232,16 @@ function calculate(){
  if(!killer&&legion===vultures&&biagioAl){$("scoreArea").innerHTML+=`<div class="field"><label for="tie">同点の場合の勝利勢力（コイントス結果）</label><select id="tie"><option value="legion">レギオン</option><option value="vultures">ヴァルチャーズ</option></select></div>`;$("tie").value=tieWinner;$("tie").onchange=()=>{tieWinner=val("tie");calculate()};}
  $("warningArea").innerHTML=warnings.length?`<div class="note">${warnings.map(w=>"※ "+w).join("<br>")}</div>`:"";
  $("endArea").innerHTML=all.map(([t,i])=>block(t,i)).join("")+'<div class="note" style="margin-top:18px"><b>判定仕様</b>：ルチア正解時は犯人逮捕・ルチア生存。レギオン勝利／ボス未確定は正式分岐。ヴァルチャーズ勝利では他マフィア解体（生存者は生存）。犯人敗北時は投票死亡最大3人。条件・個別・エピローグは該当しなければ表示されません。シナリオ本文は大END A（ルカ死亡版・ルカ生存版）と条件B（永遠王の破壊：ビアンカ／託す）が登録済みです。</div>';
- lastText=all.map(([t,items])=>t+"\n"+(items.map(x=>x.id+" : "+x.name+(x.story?"\n\n"+x.story:"")+(x.storyNotice?"\n"+x.storyNotice:"")).join("\n")||"該当なし")).join("\n\n");
- $("result").classList.remove("hidden");$("result").scrollIntoView({behavior:"smooth",block:"start"});
+ lastText=all.map(([t,items])=>t+"\n"+(items.map(x=>x.id+" : "+x.name+(x.choice?"\n［ルカの選択："+(lucaChoice==="shoot"?"撃つ":lucaChoice==="spare"?"撃たない":"未選択")+"］":"")+(x.story?"\n\n"+x.story:"")+(x.storyNotice?"\n"+x.storyNotice:"")).join("\n")||"該当なし")).join("\n\n");
+ $("result").classList.remove("hidden");
+ document.querySelectorAll("[data-luca-choice]").forEach(b=>b.onclick=()=>{lucaChoice=b.dataset.lucaChoice;calculate(true);const next=[...document.querySelectorAll("#endArea .end")].find(e=>/CONDITION_B_LUCA_(SHOOT|SPARE)_END/.test(e.querySelector(".id").textContent));if(next)next.scrollIntoView({behavior:"smooth",block:"start"});});
+ if(!keepScroll)$("result").scrollIntoView({behavior:"smooth",block:"start"});
 }
-$("calc").onclick=calculate;
-$("mobileCalc").onclick=calculate;
+$("calc").onclick=()=>{lucaChoice=null;calculate();};
+$("mobileCalc").onclick=()=>{lucaChoice=null;calculate();};
 $("mobileTop").onclick=()=>document.querySelector(".input-panel").scrollIntoView({behavior:"smooth",block:"start"});
 $("backInput").onclick=()=>document.querySelector(".input-panel").scrollIntoView({behavior:"smooth",block:"start"});
-$("reset").onclick=()=>{document.querySelectorAll("#survive input").forEach(e=>e.checked=e.dataset.person!=="jonah");updateAliveCount();["loyalty","carlo","politics","bianca","trustee","rescued","killer","luciaGuess"].forEach(x=>$(x).selectedIndex=0);syncKillerVictory();tieWinner="legion";$("result").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"});};
+$("reset").onclick=()=>{document.querySelectorAll("#survive input").forEach(e=>e.checked=e.dataset.person!=="jonah");updateAliveCount();["loyalty","carlo","politics","bianca","trustee","rescued","killer","luciaGuess"].forEach(x=>$(x).selectedIndex=0);syncKillerVictory();tieWinner="legion";lucaChoice=null;$("result").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"});};
 $("copy").onclick=async()=>{
  const label=$("copy");
  try{
