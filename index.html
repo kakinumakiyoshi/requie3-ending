@@ -78,6 +78,8 @@ const STORY_COND_B_BIANCA="円卓で全ての決着がついた時、ビアン�
 // ○○は、ビアンカが託した相手の名前に置き換える
 const STORY_COND_B_TRUSTEE="円卓で全ての決着がついた時、○○は立ち上がり、何かを確認するように、倒れたジョナの方へ視線を落とす。そのまま永遠王の骸に銃口を向けると、相手を見据えて引き金を引いた。パァン！という音と共に骸骨の眼は青白く光り、中から雄叫びのような悲鳴があがる。頭蓋骨は吹き飛び、長い間この世で転生を繰り返したジョン・クックの魂も、ついに終わりを迎えたようだ。\n「ビアンカ、もう大丈夫だ。」\n肩の荷が降りたように○○が呟くと、ジョナの顔からは殺気が消え、今は穏やかな顔で眠っている。";
 // 「ルカ 父と妹の間」の本文（空のあいだは「本文は未登録です」と表示）
+// 〇〇には、生存者からランダムに1人（ジョナ・カルロは除く。ルカがジョナに忠誠ならルカも除く）
+const STORY_MAIN_B_A_CARLO="皆で取り囲み、山羊のマスクの男を拘束しようとした時、男は全員の背筋が凍るような、恐ろしい殺気を放った。山羊の背中から漂うオーラで空気が歪み、みんな身動きひとつ取れない。それは、明らかに今まで立っていた男とは違う。\n瞬間、危険を感じた〇〇が男に襲い掛かり、男は抵抗しようと銃口を上げ、1人に向かい引き金を引こうとした時、犀が山羊マスクの眉間を撃った。犀マスクのカルロが山羊のマスクを取ると、20歳そこらの男の顔で、まだ幼さすら残っている。しかし、彼がこの事件の犯人であることは明白だった。\n「オヤジ…」カルロが呟く。かつてジェイクの永遠王ジョンクックを倒したレギオンのボス、レオーネ・ジョヴァンナ。そしてその息子、カルロ・ジョバンナ。2代に渡る因縁の対決は終わったのだ。カルロはレギオンを守るため、ボスの座へ着くことを決めた。\nジェイクのボスを倒し、正統後継であるカルロが新たな王になることは必然であった。\n彼はその経済力で街の発展に力を注ぎ、より盤石なレギオン体制を築いて行った。いまだに小さな小競り合いは起きるが、ファミリーは街のはみ出しものの受け口となり、そこからカタギに戻っていくものも少なくはなかった。カルロはやり遂げたのだ。そしてこの平安が続くことを祈った。";
 const STORY_LUCA_BETWEEN="";
 const STORY_LUCA_SHOOT="";
 const STORY_LUCA_SPARE="";
@@ -88,6 +90,7 @@ const $=id=>document.getElementById(id);
 const val=id=>$(id).value;
 const el=(id,name,sub="")=>({id,name,sub});
 let lastText=""; let tieWinner="legion";
+let carloAttacker=null; // MAIN_B_A_CARLO_END の〇〇（判定ボタンを押すたびに選び直す）
 let lucaChoice=null; // 「ルカ 父と妹の間」でルカが選んだ答え（null＝未選択／shoot＝撃つ／spare＝撃たない）
 
 const alive=id=>document.querySelector(`[data-person="${id}"]`).checked;
@@ -173,6 +176,12 @@ function calculate(keepScroll){
    else if(alive("dante")&&politics!=="biagio")sub=["c","ダンテ","MAIN_B_C_DANTE_END"];
    else sub=["d","ボス未確定","MAIN_B_UNRESOLVED_END"];
    main=[el(sub[2],`B｜レギオン END — ${sub[0]} ${sub[1]}`,sub[0]==="d"?"レギオン勝利／ボス未確定（正式な大エンディング）":"")];
+   if(sub[2]==="MAIN_B_A_CARLO_END"){
+     const pool=["luca","dante","bianca","lucia","biagio"].filter(id=>alive(id)&&!(id==="luca"&&loyalty==="jonah"));
+     if(!carloAttacker||!pool.includes(carloAttacker))carloAttacker=pool.length?pool[Math.floor(Math.random()*pool.length)]:null;
+     main[0].story=STORY_MAIN_B_A_CARLO.replace(/[〇○]{2}/g,carloAttacker?names[carloAttacker]:"仲間の一人");
+     if(carloAttacker)main[0].sub=`〇〇＝${names[carloAttacker]}（生存者からランダム）`;
+   }
  }else{
    const danteBoss=alive("dante")&&politics==="biagio";
    main=[el(danteBoss?"MAIN_C_B_DANTE_END":"MAIN_C_A_BIAGIO_END",`C｜ヴァルチャーズ END — ${danteBoss?"b ダンテ":"a ビアージョ"}`)];
@@ -237,11 +246,11 @@ function calculate(keepScroll){
  document.querySelectorAll("[data-luca-choice]").forEach(b=>b.onclick=()=>{lucaChoice=b.dataset.lucaChoice;calculate(true);const next=[...document.querySelectorAll("#endArea .end")].find(e=>/CONDITION_B_LUCA_(SHOOT|SPARE)_END/.test(e.querySelector(".id").textContent));if(next)next.scrollIntoView({behavior:"smooth",block:"start"});});
  if(!keepScroll)$("result").scrollIntoView({behavior:"smooth",block:"start"});
 }
-$("calc").onclick=()=>{lucaChoice=null;calculate();};
-$("mobileCalc").onclick=()=>{lucaChoice=null;calculate();};
+$("calc").onclick=()=>{lucaChoice=null;carloAttacker=null;calculate();};
+$("mobileCalc").onclick=()=>{lucaChoice=null;carloAttacker=null;calculate();};
 $("mobileTop").onclick=()=>document.querySelector(".input-panel").scrollIntoView({behavior:"smooth",block:"start"});
 $("backInput").onclick=()=>document.querySelector(".input-panel").scrollIntoView({behavior:"smooth",block:"start"});
-$("reset").onclick=()=>{document.querySelectorAll("#survive input").forEach(e=>e.checked=e.dataset.person!=="jonah");updateAliveCount();["loyalty","carlo","politics","bianca","trustee","rescued","killer","luciaGuess"].forEach(x=>$(x).selectedIndex=0);syncKillerVictory();tieWinner="legion";lucaChoice=null;$("result").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"});};
+$("reset").onclick=()=>{document.querySelectorAll("#survive input").forEach(e=>e.checked=e.dataset.person!=="jonah");updateAliveCount();["loyalty","carlo","politics","bianca","trustee","rescued","killer","luciaGuess"].forEach(x=>$(x).selectedIndex=0);syncKillerVictory();tieWinner="legion";lucaChoice=null;carloAttacker=null;$("result").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"});};
 $("copy").onclick=async()=>{
  const label=$("copy");
  try{
