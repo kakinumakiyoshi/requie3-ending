@@ -182,7 +182,9 @@ function calculate(keepScroll){
  }
  else if(faction==="legion"){
    let sub;
-   if(alive("carlo")&&carlo==="inherit")sub=["a","カルロ","MAIN_B_A_CARLO_END"];
+   // ダンテがカルロに政略を使っていたら、カルロの選択や生死に関わらずダンテがボス（ダンテ生存時）
+   if(alive("dante")&&politics==="carlo")sub=["c","ダンテ","MAIN_B_C_DANTE_END"];
+   else if(alive("carlo")&&carlo==="inherit")sub=["a","カルロ","MAIN_B_A_CARLO_END"];
    else if(alive("lucia"))sub=["b","ルチア","MAIN_B_B_LUCIA_END"];
    else if(alive("dante")&&politics!=="biagio")sub=["c","ダンテ","MAIN_B_C_DANTE_END"];
    else sub=["d","ボス未確定","MAIN_B_UNRESOLVED_END"];
