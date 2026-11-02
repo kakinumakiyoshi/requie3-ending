@@ -26,6 +26,8 @@ footer{font:12px/1.7 system-ui;text-align:center;color:#a4977f;margin-top:25px}
 
 .luca-choice{margin-top:14px;padding:13px 14px;border:1px dashed #aa8b63;background:#f6ecd7}.luca-choice p{margin:0 0 9px;font:14px/1.7 system-ui;color:#5a4433}.luca-choice .buttons{margin-top:6px}.luca-choice button{flex:1}.luca-choice button[aria-pressed=true]{background:#6a3036;color:#fff3dc}
 .shot-line[hidden]{display:none}.shot-line{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px;background:#fff8e9;border:1px dashed #aa8b63;font:13px system-ui;color:#5a4433}.shot-line input{width:19px;height:19px;accent-color:#653038}
+.field.missing select{border:2px solid #9b2c2c;background:#fff1ee}.field.missing label:after{content:"　※選んでください";color:#9b2c2c;font:700 12px system-ui}
+#inputError{margin-top:14px;padding:12px 14px;border:2px solid #9b2c2c;background:#fff1ee;color:#7a1f1f;font:14px/1.7 system-ui}#inputError[hidden]{display:none}
 .story-text{margin-top:16px;border-top:1px solid #c7ad82;padding-top:14px;font-size:15px;line-height:2.1;letter-spacing:.02em;white-space:normal}.story-text p{margin:0 0 1.15em}.story-text p:last-child{margin-bottom:0}.story-notice{margin-top:12px;padding:11px;background:#f1e3c9;border:1px solid #c7ad82;font-size:13px;line-height:1.8}
 /* Smartphone-first refinements */
 html{scroll-behavior:smooth}body{overflow-x:hidden}main{width:100%;min-width:0;padding-bottom:calc(96px + env(safe-area-inset-bottom))}
@@ -46,13 +48,13 @@ button{min-height:48px;touch-action:manipulation}.survive label{min-height:52px;
 </style></head><body><main>
 <header class="mast"><div class="kicker">ENDING JUDGMENT · WEB EDITION</div><h1>REQUIEⅢ</h1><p>選択・生存者・犯人の勝敗を入力し、<br>大エンディング → 条件エンディング → 個別エンディング → 最終エピローグの順に判定します。</p></header>
 <section class="panel input-panel"><h2>Ⅰ. キャラクターの選択</h2><div class="grid">
-<div class="field"><label for="loyalty">ルカ｜誰に忠誠を誓ったか</label><select id="loyalty"><option value="carlo">カルロ</option><option value="jonah">ジョナ</option><option value="biagio">ビアージョ</option><option value="other">その他（レギオン＋1）</option></select></div>
-<div class="field"><label for="carlo">カルロ｜何を選んだか</label><select id="carlo"><option value="inherit">レギオンを継ぐ</option><option value="family">家族を取る</option></select></div>
-<div class="field"><label for="politics">ダンテ｜誰に政略を使ったか</label><select id="politics"><option value="carlo">カルロ</option><option value="biagio">ビアージョ</option><option value="lucia">ルチア</option><option value="other">その他（レギオン＋1）</option></select></div>
-<div class="field"><label for="bianca">ビアンカ｜子どもを守るための答え</label><select id="bianca"><option value="correct">正解</option><option value="wrong">不正解</option></select></div>
-<div class="field"><label for="trustee">ビアンカ｜誰に託したか</label><select id="trustee"><option value="carlo">カルロ</option><option value="biagio">ビアージョ</option><option value="lucia">ルチア</option><option value="luca">ルカ</option><option value="dante">ダンテ</option><option value="jonah">ジョナ</option></select></div>
-<div class="field"><label for="luciaGuess">ルチア｜犯人の正体</label><select id="luciaGuess"><option value="wrong">不正解</option><option value="correct">正解（犯人拘束時、ルチア生存）</option></select></div>
-<div class="field"><label for="rescued">ビアージョ｜チンピラ救出人数</label><select id="rescued"><option value="0">0人（加点なし）</option><option value="1">1人（＋1）</option><option value="2">2人（＋1）</option><option value="3">3人（＋2・全員救出）</option></select></div>
+<div class="field"><label for="loyalty">ルカ｜誰に忠誠を誓ったか</label><select id="loyalty"><option value="">未選択</option><option value="carlo">カルロ</option><option value="jonah">ジョナ</option><option value="biagio">ビアージョ</option><option value="other">その他（レギオン＋1）</option></select></div>
+<div class="field"><label for="carlo">カルロ｜何を選んだか</label><select id="carlo"><option value="">未選択</option><option value="inherit">レギオンを継ぐ</option><option value="family">家族を取る</option></select></div>
+<div class="field"><label for="politics">ダンテ｜誰に政略を使ったか</label><select id="politics"><option value="">未選択</option><option value="carlo">カルロ</option><option value="biagio">ビアージョ</option><option value="lucia">ルチア</option><option value="other">その他（レギオン＋1）</option></select></div>
+<div class="field"><label for="bianca">ビアンカ｜子どもを守るための答え</label><select id="bianca"><option value="">未選択</option><option value="correct">正解</option><option value="wrong">不正解</option></select></div>
+<div class="field"><label for="trustee">ビアンカ｜誰に託したか</label><select id="trustee"><option value="">未選択</option><option value="carlo">カルロ</option><option value="biagio">ビアージョ</option><option value="lucia">ルチア</option><option value="luca">ルカ</option><option value="dante">ダンテ</option><option value="jonah">ジョナ</option></select></div>
+<div class="field"><label for="luciaGuess">ルチア｜犯人の正体</label><select id="luciaGuess"><option value="">未選択</option><option value="wrong">不正解</option><option value="correct">正解（犯人拘束時、ルチア生存）</option></select></div>
+<div class="field"><label for="rescued">ビアージョ｜チンピラ救出人数</label><select id="rescued"><option value="">未選択</option><option value="0">0人（加点なし）</option><option value="1">1人（＋1）</option><option value="2">2人（＋1）</option><option value="3">3人（＋2・全員救出）</option></select></div>
 </div><p class="hint">犯人が逃げ切った場合は、ルチアが正解していても死亡します。犯人が拘束された場合に限り、ルチアが正解していれば殺害されていても生存扱いになります。ヴァルチャーズ勝利時も、チェックした人物は生存します（他マフィアは解体）。</p></section>
 <section class="panel input-panel"><h2>Ⅱ. 生存者・犯人の勝敗</h2>
 <fieldset><legend>最終的に生き残った人物をチェック</legend><p class="hint">生存した人物だけにチェックを入れてください。チェックなし＝死亡です。初期状態では6人全員が生存しています。</p><div class="tools"><button id="allAlive" type="button">全員生存を選択</button><button id="clearAlive" type="button">チェックを外す</button></div><p id="jsWarning" class="note" role="alert">JavaScriptが無効です。ブラウザの設定をご確認ください。</p><div class="survive" id="survive">
@@ -65,10 +67,10 @@ button{min-height:48px;touch-action:manipulation}.survive label{min-height:52px;
 <label><input type="checkbox" data-person="jonah" disabled>ジョナ（犯人敗北時は死亡）</label>
 </div><noscript><p class="note" role="alert">JavaScriptを有効にしてご利用ください。</p></noscript><p class="alive-count" id="aliveCount">生存者：6人 / 7人</p><label id="luciaShotWrap" class="shot-line" hidden><input type="checkbox" id="luciaShot"> ルチアは投票で殺されていた（正体を当てていたため生存扱い）</label></fieldset>
 <div class="grid">
-<div class="field"><label for="killer">犯人（ジョナ）は勝ったか</label><select id="killer"><option value="no">いいえ（拘束された）</option><option value="yes">はい（3ラウンド逃げ切った）</option></select></div>
+<div class="field"><label for="killer">犯人（ジョナ）は勝ったか</label><select id="killer"><option value="">未選択</option><option value="no">いいえ（拘束された）</option><option value="yes">はい（3ラウンド逃げ切った）</option></select></div>
 
 </div><p class="hint">レギオン：生存中のルカ・ダンテ・ビアンカ・カルロ・ルチアが各＋1。ルカ／ダンテがビアージョを選ぶと、その1点はヴァルチャーズ側に移動します。「その他」はレギオン側です。犯人勝利時は生存者を自動確定します。</p>
-<div class="buttons"><button id="calc">集計してエンディングを表示</button><button class="secondary" id="reset" type="button">初期化</button></div></section>
+<div id="inputError" role="alert" hidden></div><div class="buttons"><button id="calc">集計してエンディングを表示</button><button class="secondary" id="reset" type="button">初期化</button></div></section>
 <section class="panel result hidden" id="result" aria-live="polite"><h2>Ⅲ. エンディング判定結果</h2><div id="scoreArea"></div><div id="warningArea"></div><div id="endArea"></div>
 <div class="buttons result-actions"><button class="secondary" id="copy" type="button">結果をコピー</button><button class="secondary" id="backInput" type="button">入力に戻る</button><button class="secondary" onclick="window.print()" type="button">印刷</button></div></section>
 <footer>REQUIEⅢ · ENDING JUDGMENT v9 · 大エンディング A（ルカ死亡／ルカ生存）本文収録</footer>
@@ -131,7 +133,21 @@ function block(title,items){
   return `<div class="section-head"><h3>${title}</h3><span>${items.length}件</span></div>`+
   (items.length?items.map(x=>`<div class="end"><div class="id">${x.id}</div><div class="name">${x.name}</div>${x.sub?`<div class="sub">${x.sub}</div>`:""}${x.story?`<div class="story-text">${x.story.split("\n").map(p=>`<p>${escapeHtml(p)}</p>`).join("")}</div>`:""}${x.storyNotice?`<div class="story-notice">${escapeHtml(x.storyNotice)}</div>`:""}${x.choice?`<div class="luca-choice"><p>ルカは、永遠王の骸を――<br><small>ルカ役のプレイヤーが選んでください。</small></p><div class="buttons"><button type="button" class="secondary" data-luca-choice="shoot" aria-pressed="${lucaChoice==="shoot"}">撃つ</button><button type="button" class="secondary" data-luca-choice="spare" aria-pressed="${lucaChoice==="spare"}">撃たない</button></div></div>`:""}</div>`).join(""):`<p class="empty">該当なし</p>`);
 }
+const REQUIRED=[["loyalty","ルカ｜誰に忠誠を誓ったか"],["carlo","カルロ｜何を選んだか"],["politics","ダンテ｜誰に政略を使ったか"],["bianca","ビアンカ｜子どもを守るための答え"],["trustee","ビアンカ｜誰に託したか"],["luciaGuess","ルチア｜犯人の正体"],["rescued","ビアージョ｜チンピラ救出人数"],["killer","犯人（ジョナ）は勝ったか"]];
+// 未選択の項目があれば、判定せずにエラーを出す
+function checkRequired(){
+ const missing=REQUIRED.filter(([id])=>val(id)==="");
+ REQUIRED.forEach(([id])=>$(id).closest(".field").classList.toggle("missing",val(id)===""));
+ const box=$("inputError");
+ if(!missing.length){box.hidden=true;return true;}
+ box.innerHTML="<b>未選択の項目があります。</b>すべて選んでから判定してください。<br>"+missing.map(([,l])=>"・"+l).join("<br>");
+ box.hidden=false;$("result").classList.add("hidden");
+ $(missing[0][0]).closest(".field").scrollIntoView({behavior:"smooth",block:"center"});
+ return false;
+}
+REQUIRED.forEach(([id])=>$(id).addEventListener("change",()=>{if(val(id)!=="")$(id).closest(".field").classList.remove("missing");if(!$("inputError").hidden&&REQUIRED.every(([x])=>val(x)!==""))$("inputError").hidden=true;}));
 function calculate(keepScroll){
+ if(!checkRequired())return;
  const loyalty=val("loyalty"),carlo=val("carlo"),politics=val("politics"),correct=val("bianca")==="correct",trustee=val("trustee"),rescued=+val("rescued"),luciaCorrect=(val("luciaGuess")==="correct"&&val("killer")==="no"),killer=val("killer")==="yes";
  if(killer)syncKillerVictory();
  const lucaAl=alive("luca"),danteAl=alive("dante"),biagioAl=alive("biagio");
