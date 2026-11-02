@@ -25,6 +25,7 @@ footer{font:12px/1.7 system-ui;text-align:center;color:#a4977f;margin-top:25px}
 @media print{body{background:white;color:black}.mast{color:black}.panel{box-shadow:none}.buttons,.input-panel{display:none}.result{display:block}}
 
 .luca-choice{margin-top:14px;padding:13px 14px;border:1px dashed #aa8b63;background:#f6ecd7}.luca-choice p{margin:0 0 9px;font:14px/1.7 system-ui;color:#5a4433}.luca-choice .buttons{margin-top:6px}.luca-choice button{flex:1}.luca-choice button[aria-pressed=true]{background:#6a3036;color:#fff3dc}
+.shot-line[hidden]{display:none}.shot-line{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px;background:#fff8e9;border:1px dashed #aa8b63;font:13px system-ui;color:#5a4433}.shot-line input{width:19px;height:19px;accent-color:#653038}
 .story-text{margin-top:16px;border-top:1px solid #c7ad82;padding-top:14px;font-size:15px;line-height:2.1;letter-spacing:.02em;white-space:normal}.story-text p{margin:0 0 1.15em}.story-text p:last-child{margin-bottom:0}.story-notice{margin-top:12px;padding:11px;background:#f1e3c9;border:1px solid #c7ad82;font-size:13px;line-height:1.8}
 /* Smartphone-first refinements */
 html{scroll-behavior:smooth}body{overflow-x:hidden}main{width:100%;min-width:0;padding-bottom:calc(96px + env(safe-area-inset-bottom))}
@@ -62,7 +63,7 @@ button{min-height:48px;touch-action:manipulation}.survive label{min-height:52px;
 <label><input type="checkbox" data-person="lucia" checked>ルチア</label>
 <label><input type="checkbox" data-person="biagio" checked>ビアージョ</label>
 <label><input type="checkbox" data-person="jonah" disabled>ジョナ（犯人敗北時は死亡）</label>
-</div><noscript><p class="note" role="alert">JavaScriptを有効にしてご利用ください。</p></noscript><p class="alive-count" id="aliveCount">生存者：6人 / 7人</p></fieldset>
+</div><noscript><p class="note" role="alert">JavaScriptを有効にしてご利用ください。</p></noscript><p class="alive-count" id="aliveCount">生存者：6人 / 7人</p><label id="luciaShotWrap" class="shot-line" hidden><input type="checkbox" id="luciaShot"> ルチアは投票で殺されていた（正体を当てていたため生存扱い）</label></fieldset>
 <div class="grid">
 <div class="field"><label for="killer">犯人（ジョナ）は勝ったか</label><select id="killer"><option value="no">いいえ（拘束された）</option><option value="yes">はい（3ラウンド逃げ切った）</option></select></div>
 
@@ -79,7 +80,10 @@ const STORY_COND_B_BIANCA="円卓で全ての決着がついた時、ビアン�
 const STORY_COND_B_TRUSTEE="円卓で全ての決着がついた時、○○は立ち上がり、何かを確認するように、倒れたジョナの方へ視線を落とす。そのまま永遠王の骸に銃口を向けると、相手を見据えて引き金を引いた。パァン！という音と共に骸骨の眼は青白く光り、中から雄叫びのような悲鳴があがる。頭蓋骨は吹き飛び、長い間この世で転生を繰り返したジョン・クックの魂も、ついに終わりを迎えたようだ。\n「ビアンカ、もう大丈夫だ。」\n肩の荷が降りたように○○が呟くと、ジョナの顔からは殺気が消え、今は穏やかな顔で眠っている。";
 // 「ルカ 父と妹の間」の本文（空のあいだは「本文は未登録です」と表示）
 // 〇〇には、生存者からランダムに1人（ジョナ・カルロは除く。ルカがジョナに忠誠ならルカも除く）
-const STORY_MAIN_B_A_CARLO="皆で取り囲み、山羊のマスクの男を拘束しようとした時、男は全員の背筋が凍るような、恐ろしい殺気を放った。山羊の背中から漂うオーラで空気が歪み、みんな身動きひとつ取れない。それは、明らかに今まで立っていた男とは違う。\n瞬間、危険を感じた〇〇が男に襲い掛かり、男は抵抗しようと銃口を上げ、1人に向かい引き金を引こうとした時、犀が山羊マスクの眉間を撃った。犀マスクのカルロが山羊のマスクを取ると、20歳そこらの男の顔で、まだ幼さすら残っている。しかし、彼がこの事件の犯人であることは明白だった。\n「オヤジ…」カルロが呟く。かつてジェイクの永遠王ジョン・クックを倒したレギオンのボス、レオーネ・ジョヴァンナ。そしてその息子、カルロ・ジョヴァンナ。2代に渡る因縁の対決は終わったのだ。カルロはレギオンを守るため、ボスの座へ着くことを決めた。\nジェイクのボスを倒し、正統後継であるカルロが新たな王になることは必然であった。\n彼はその経済力で街の発展に力を注ぎ、より盤石なレギオン体制を築いて行った。いまだに小さな小競り合いは起きるが、ファミリーは街のはみ出しものの受け口となり、そこからカタギに戻っていくものも少なくはなかった。カルロはやり遂げたのだ。そしてこの平安が続くことを祈った。";
+const STORY_MAIN_B_A_CARLO="山羊のマスクの男を皆で取り囲み、拘束しようとしたその時、男は背筋が凍るような、恐ろしい殺気を放った。\n山羊の背中から漂うオーラが空気を歪ませ、誰も身動きひとつ取れない。それは、明らかに今まで目の前に立っていた男とは違っていた。\n瞬間、危険を察知した〇〇が男に襲いかかった。男は抵抗するように銃口を上げ、〇〇に向かって引き金を引こうとする。\nその時、犀マスクの男が山羊マスクの眉間を撃ち抜いた。\n犀マスクのカルロが倒れた山羊のマスクを外すと、そこには20歳そこそこの、まだ幼さすら残る男の顔があった。しかし、彼がこの事件の犯人であることは明白だった。\n「オヤジ……」\nカルロが呟く。\nかつてジェイクの永遠王、ジョン・クックを倒したレギオンのボス、レオーネ・ジョヴァンナ。そして、その息子カルロ・ジョヴァンナ。\n二代にわたる因縁の対決は、ここに終わったのだ。\nカルロはレギオンを守るため、ボスの座に就くことを決めた。\nジェイクのボスを倒し、正統な後継者であるカルロが新たな王になることは必然であった。\n彼はその経済力で街の発展に力を注ぎ、より盤石なレギオン体制を築いていった。いまだに小競り合いは起きるが、ファミリーは街のはみ出し者の受け皿となり、そこからカタギに戻っていく者も少なくはなかった。カルロはやり遂げたのだ。そして、この平安が続くことを祈った。";
+// {{ルチア生存}} は「ルチアが正体を当て、投票で殺されていた」場合だけ次の一文に置き換え、それ以外は行ごと消す
+const STORY_MAIN_B_B_LUCIA="山羊のマスクの男を皆で取り囲み、拘束しようとしたその時、男は背筋が凍るような、恐ろしい殺気を放った。\n山羊の背中から漂うオーラが空気を歪ませ、誰も身動きひとつ取れない。それは、明らかに今まで目の前に立っていた男とは違っていた。\n瞬間、危険を察知した〇〇が男に襲いかかった。男は抵抗するように銃口を上げ、〇〇に向かって引き金を引こうとする。\nその時、犀マスクの男が山羊マスクの眉間を撃ち抜いた。\n犀マスクのカルロが倒れた山羊のマスクを外すと、そこには20歳そこそこの、まだ幼さすら残る男の顔があった。しかし、彼がこの事件の犯人であることは明白だった。\n「オヤジ……」\nカルロが呟く。\nかつてジェイクの永遠王、ジョン・クックを倒したレギオンのボス、レオーネ・ジョヴァンナ。そして、その息子カルロ・ジョヴァンナ。\n二代にわたる因縁の対決は、ここに終わったのだ。\nしかし、カルロは父の跡を継ぐことを選ばなかった。カルロが選んだのは、レギオンではなく家族だった。ジョン・クックの最期を見て、ビアンカと息子のリオのために、全てを捨てる覚悟ができた。\n正統な後継者がその座を退いたことで、レギオンの新たなボスとなったのは、長年レオーネの右腕として組織を支えてきた幹部のルチアであった。\n{{ルチア生存}}\nルチアは尊敬するレオーネの遺志を引き継いだ。\n彼女は持ち前の冷静な判断力と統率力でファミリーをまとめ上げ、レギオンの経済力を背景に、街の発展と組織の安定に力を注いだ。\nやがてレギオンは、先代の時代以上に強固な組織へと生まれ変わっていく。\n図らずもルチアは、後世に名を残す女帝として君臨し続けることとなる。\n一方、カルロはファミリーの表舞台から姿を消した。";
+const LUCIA_SURVIVED_LINE="犯人がジョナだと睨んでいたルチアは、間一髪のところで急所を外していた。彼女は生きていたのだ。";
 const STORY_LUCA_BETWEEN="";
 const STORY_LUCA_SHOOT="";
 const STORY_LUCA_SPARE="";
@@ -105,6 +109,7 @@ function syncKillerVictory(){
  $("survive").closest("fieldset").querySelector(".hint").textContent=win
  ? "犯人勝利：ジョナが生存。ルカは忠誠相手がジョナの場合のみ生存。ルチアは正解・不正解にかかわらず死亡します。"
  : (val("luciaGuess")==="correct"&&val("killer")==="no") ? "犯人が拘束され、ルチアが正体を特定していたため、ルチアは生存扱いです。その他の生存者を選択してください。" : "生存した人物だけにチェックを入れてください。犯人敗北時、ジョナは死亡扱いです。投票で死亡するのは最大3人です。";
+ const forced=!win&&val("luciaGuess")==="correct";$("luciaShotWrap").hidden=!forced;if(!forced)$("luciaShot").checked=false;
  updateAliveCount();
 }
 $("killer").addEventListener("change",syncKillerVictory);
@@ -176,11 +181,15 @@ function calculate(keepScroll){
    else if(alive("dante")&&politics!=="biagio")sub=["c","ダンテ","MAIN_B_C_DANTE_END"];
    else sub=["d","ボス未確定","MAIN_B_UNRESOLVED_END"];
    main=[el(sub[2],`B｜レギオン END — ${sub[0]} ${sub[1]}`,sub[0]==="d"?"レギオン勝利／ボス未確定（正式な大エンディング）":"")];
-   if(sub[2]==="MAIN_B_A_CARLO_END"){
-     const pool=["luca","dante","bianca","lucia","biagio"].filter(id=>alive(id)&&!(id==="luca"&&loyalty==="jonah"));
+   const luciaShot=luciaCorrect&&$("luciaShot").checked;
+   // 〇〇：生存者からランダム（ジョナ・カルロは除く。ルカがジョナに忠誠ならルカも、投票で撃たれていたルチアも除く）
+   const pickAttacker=()=>{const pool=["luca","dante","bianca","lucia","biagio"].filter(id=>alive(id)&&!(id==="luca"&&loyalty==="jonah")&&!(id==="lucia"&&luciaShot));
      if(!carloAttacker||!pool.includes(carloAttacker))carloAttacker=pool.length?pool[Math.floor(Math.random()*pool.length)]:null;
-     main[0].story=STORY_MAIN_B_A_CARLO.replace(/[〇○]{2}/g,carloAttacker?names[carloAttacker]:"仲間の一人");
-     if(carloAttacker)main[0].sub=`〇〇＝${names[carloAttacker]}（生存者からランダム）`;
+     if(carloAttacker)main[0].sub=`〇〇＝${names[carloAttacker]}（生存者からランダム）`;return carloAttacker?names[carloAttacker]:"仲間の一人";};
+   if(sub[2]==="MAIN_B_A_CARLO_END"){const n=pickAttacker();main[0].story=STORY_MAIN_B_A_CARLO.replace(/[〇○]{2}/g,n);}
+   if(sub[2]==="MAIN_B_B_LUCIA_END"){
+     if(alive("carlo")){const n=pickAttacker();main[0].story=STORY_MAIN_B_B_LUCIA.replace(/[〇○]{2}/g,n).replace("{{ルチア生存}}",luciaShot?LUCIA_SURVIVED_LINE:"").replace(/\n\n/g,"\n");}
+     else main[0].storyNotice="カルロ死亡時のB-b（ルチア）本文は未登録です。";
    }
  }else{
    const danteBoss=alive("dante")&&politics==="biagio";
@@ -250,7 +259,7 @@ $("calc").onclick=()=>{lucaChoice=null;carloAttacker=null;calculate();};
 $("mobileCalc").onclick=()=>{lucaChoice=null;carloAttacker=null;calculate();};
 $("mobileTop").onclick=()=>document.querySelector(".input-panel").scrollIntoView({behavior:"smooth",block:"start"});
 $("backInput").onclick=()=>document.querySelector(".input-panel").scrollIntoView({behavior:"smooth",block:"start"});
-$("reset").onclick=()=>{document.querySelectorAll("#survive input").forEach(e=>e.checked=e.dataset.person!=="jonah");updateAliveCount();["loyalty","carlo","politics","bianca","trustee","rescued","killer","luciaGuess"].forEach(x=>$(x).selectedIndex=0);syncKillerVictory();tieWinner="legion";lucaChoice=null;carloAttacker=null;$("result").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"});};
+$("reset").onclick=()=>{document.querySelectorAll("#survive input").forEach(e=>e.checked=e.dataset.person!=="jonah");updateAliveCount();["loyalty","carlo","politics","bianca","trustee","rescued","killer","luciaGuess"].forEach(x=>$(x).selectedIndex=0);syncKillerVictory();tieWinner="legion";lucaChoice=null;carloAttacker=null;$("luciaShot").checked=false;$("luciaShotWrap").hidden=true;$("result").classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"});};
 $("copy").onclick=async()=>{
  const label=$("copy");
  try{
