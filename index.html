@@ -99,6 +99,8 @@ const STORY_MAIN_B_UNRESOLVED="山羊のマスクの男を皆で取り囲み、�
 const STORY_EPILOGUE_B_MOTHER="ジョン・クックに取り憑かれたジョナが倒れてから、10年後。\n「リオ！　起きなさい！」\nドアの外から母親、ビアンカの声がする。いつも早起きをするリオが、この日は何故か体が重く、頭が冴えなかった。\n重い目を開くと、テーブルの上に見覚えのない手紙が置いてある。\nそこには、\n「お前の母親の命が惜しければ、私の言うことを聞け」\nと書いてあった……。\nリオの中で、男の声が聞こえる……。\n鏡に映る首元の星形のアザが、今、青く光った……。";
 const STORY_EPILOGUE_B_FATHER="ジョン・クックに取り憑かれたジョナが倒れてから、10年後。\n「リオ！　起きなさい！」\nドアの外から父親、カルロの声がする。いつも早起きをするリオが、この日は何故か体が重く、頭が冴えなかった。\n重い目を開くと、テーブルの上に見覚えのない手紙が置いてある。\nそこには、\n「お前の父親の命が惜しければ、私の言うことを聞け」\nと書いてあった……。\nリオの中で、男の声が聞こえる……。\n鏡に映る首元の星形のアザが、今、青く光った……。";
 const STORY_EPILOGUE_B_ORPHAN="ジョン・クックに取り憑かれたジョナが倒れてから、10年後。\n孤児院で育った一人の少年がいた。名前はリオ。リオ・ジョヴァンナ。\nいつも早起きをするリオが、この日は何故か体が重く、頭が冴えなかった。\n重い目を開くと、テーブルの上に見覚えのない手紙が置いてある。\n「お前の仲間達の命が惜しければ、私の言うことを聞け」\nその手紙を読んで、リオは困惑した。\nすると、リオの中で男の声が聞こえる……。\nまるで、頭の中にもう一人の自分が生まれるようだ……。\n「母さん……父さん……」\nリオには、何が起きているのか、理解できなかった。\nただ、リオの首元の星形のアザが、青く鈍い光を放った……。";
+// 条件C（ビアージョの救出）
+const STORY_COND_C="ビアージョはスズメのマスクを剥がされると、ヴァルチャーズであることを理由に拘束された。\n――おい、なんだよあいつら、全然助けに来ないじゃないかよ――\n敵わないと怖気づいたのか、チンピラ達は2階でうずくまっていた。";
 // 最終エピローグC-1（ヴァルチャーズ勝利＋骸の破壊失敗）
 const STORY_EPILOGUE_C1="あの事件のあと、シャッターランドを占拠したビアージョは、館に残されていた古びたRequiemの本を手に取り、魂の継承について調べ続けていた。だが、儀式の条件が何なのかは、いまだにわからない。\n「ねむれ、ねむれ、星の子よ」\n子守唄のようなそのフレーズを、ビアージョはおもむろに口ずさむ。彼には、ずっと気になっていることがあった。自分の背中にも、星の形をしたアザがあるのだ。\nその頃、シャッターランドの地下室では、忘れ去られた謎の骸が、闇の中で薄暗い光を放っていた。\nその夜、ビアージョは割れるような頭の痛みで目を覚ました。\nどこからともなく、声が聞こえる。\n「私は帰ってきた」";
 // 最終エピローグC-2：C-a（ビアージョ）・C-b（ダンテ）共通
@@ -165,8 +167,8 @@ function block(title,items){
 const STORY_SPLIT={MAIN_B_A_CARLO_END:[{t:"二代にわたる因縁の対決は、ここに終わったのだ。",before:true}],MAIN_B_B_LUCIA_END:[{t:"二代にわたる因縁の対決は、ここに終わったのだ。",before:true},{t:"ジョン・クックとレオーネの因縁の対決は、ここに終わった。",before:true}],MAIN_B_C_DANTE_END:[{t:"魂が目覚めるのをずっと待っていたのだ。"}],MAIN_B_UNRESOLVED_END:[{t:"ジョン・クックとレオーネの因縁は、ここに終わったはずだった。",before:true}],MAIN_C_A_BIAGIO_END:[{t:"その夜、レギオンは解体された。"}],MAIN_C_B_DANTE_END:[{t:"ありがとな！」"}]};
 let viewMode="story",lastStoryText="";
 // 結末の数（本文や分岐を増やしたら数え直して更新する）
-// 37＝エンディングIDの数、1505＝プレイヤーの選択で変わる「読まれる結末」の数（〇〇のランダムな名前は数えない）
-const ENDING_SCENARIO_COUNT=37,ENDING_STORY_VARIANTS=1505;
+// 36＝エンディングIDの数、1132＝プレイヤーの選択で変わる「読まれる結末」の数（〇〇のランダムな名前は数えない）
+const ENDING_SCENARIO_COUNT=36,ENDING_STORY_VARIANTS=1132;
 const ENDING_CLOSING=`この物語には、みなさんの選択によって表示が変わるエンディングシナリオが${ENDING_SCENARIO_COUNT}本あります。\nそれらの組み合わせから生まれる結末は、全部で${ENDING_STORY_VARIANTS.toLocaleString("ja-JP")}通り。\n今夜みなさんがたどり着いたのは、そのうちのひとつです。`;
 const closingHtml=()=>`<div class="ending-closing">${ENDING_CLOSING.split("\n").map(l=>`<p>${escapeHtml(l)}</p>`).join("")}</div>`;
 function splitMain(e){const t=e.story||"";for(const m of STORY_SPLIT[e.id]||[]){const i=t.indexOf(m.t);if(i>=0){const k=m.before?i:i+m.t.length;return [t.slice(0,k).replace(/\n+$/,""),t.slice(k).replace(/^\n+/,"")];}}return [t,""];}
@@ -288,11 +290,8 @@ function calculate(keepScroll){
    if(alive("bianca")){const e=el("CONDITION_B_KING_DESTROYED_BIANCA_END","条件B｜永遠王の破壊 ― ビアンカ","ビアンカ生存・破壊成功。");e.story=STORY_COND_B_BIANCA;conditions.push(e);}
    else{const e=el("CONDITION_B_KING_DESTROYED_TRUSTEE_END","条件B｜永遠王の破壊 ― 託す",`${names[trustee]}に託して破壊成功。`);e.story=STORY_COND_B_TRUSTEE.split("○○").join(names[trustee]);conditions.push(e);}
  }
- // ビアンカ死亡・答えは正解・託した相手がジョナ・ジョナが犯人として拘束 → 骸の破壊は失敗
- if(!killer&&correct&&!alive("bianca")&&trustee==="jonah")
-   conditions.push(el("CONDITION_B_KING_DESTROY_FAILED_JONAH_END","条件B｜永遠王の骸 破壊失敗 ― ジョナに託す","ビアンカ死亡・答えは正解。ジョナに託したが、ジョナが犯人として拘束されたため破壊失敗。"));
- if(faction==="legion"&&rescued>0)
-   conditions.push(el("CONDITION_C_HENCHMEN_RESCUED_END","条件C｜ビアージョの救出",`${rescued}人救出。レギオン勝利時に追加。`));
+ // レギオン勝利＋ビアージョ生存＋チンピラ救出1人以上（ジョナに託した場合は、条件エンディングなしの破壊失敗）
+ if(faction==="legion"&&alive("biagio")&&rescued>0){const e=el("CONDITION_C_HENCHMEN_RESCUED_END","条件C｜ビアージョの救出",`${rescued}人救出。レギオン勝利・ビアージョ生存時に、大エンディングの中で読まれる。`);e.story=STORY_COND_C;conditions.push(e);}
  // 個別エンディング：指定の分岐以外は追加しない。
  const individual=[];
  individual.push(el(alive("luca")?"LUCA_ALIVE_END":"LUCA_DEAD_END",`ルカ｜${alive("luca")?"生存":"死亡"} END`,alive("luca")?`忠誠相手：${names[loyalty]||"その他"}`:""));
