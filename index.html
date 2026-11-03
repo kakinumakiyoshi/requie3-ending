@@ -150,15 +150,16 @@ function block(title,items){
   return `<div class="section-head"><h3>${title}</h3><span>${items.length}件</span></div>`+
   (items.length?items.map(x=>`<div class="end"><div class="id">${x.id}</div><div class="name">${x.name}</div>${x.sub?`<div class="sub">${x.sub}</div>`:""}${x.story?`<div class="story-text">${x.story.split("\n").map(p=>`<p>${escapeHtml(p)}</p>`).join("")}</div>`:""}${x.storyNotice?`<div class="story-notice">${escapeHtml(x.storyNotice)}</div>`:""}${x.choice?`<div class="luca-choice"><p>ルカは、永遠王の骸を――<br><small>ルカ役のプレイヤーが選んでください。</small></p><div class="buttons"><button type="button" class="secondary" data-luca-choice="shoot" aria-pressed="${lucaChoice==="shoot"}">撃つ</button><button type="button" class="secondary" data-luca-choice="spare" aria-pressed="${lucaChoice==="spare"}">撃たない</button></div></div>`:""}</div>`).join(""):`<p class="empty">該当なし</p>`);
 }
-// シナリオ表示：大エンディングを「決着の場面」と「その後」に分ける位置（この文の直後で区切る）
-const STORY_SPLIT={MAIN_B_A_CARLO_END:["二代にわたる因縁の対決は、ここに終わったのだ。"],MAIN_B_B_LUCIA_END:["二代にわたる因縁の対決は、ここに終わったのだ。","ジョン・クックとレオーネの因縁の対決は、ここに終わった。"],MAIN_B_C_DANTE_END:["魂が目覚めるのをずっと待っていたのだ。"],MAIN_B_UNRESOLVED_END:["因縁は、ここに終わったはずだった。"],MAIN_C_A_BIAGIO_END:["その夜、レギオンは解体された。"],MAIN_C_B_DANTE_END:["ありがとな！」"]};
+// シナリオ表示：大エンディングを「決着の場面」と「その後」に分ける位置
+// before:true は「この文の直前」で区切る（因縁が終わる一文を、条件エンディング＝骸の場面のあとに回すため）。それ以外は「この文の直後」で区切る
+const STORY_SPLIT={MAIN_B_A_CARLO_END:[{t:"二代にわたる因縁の対決は、ここに終わったのだ。",before:true}],MAIN_B_B_LUCIA_END:[{t:"二代にわたる因縁の対決は、ここに終わったのだ。",before:true},{t:"ジョン・クックとレオーネの因縁の対決は、ここに終わった。",before:true}],MAIN_B_C_DANTE_END:[{t:"魂が目覚めるのをずっと待っていたのだ。"}],MAIN_B_UNRESOLVED_END:[{t:"ジョン・クックとレオーネの因縁は、ここに終わったはずだった。",before:true}],MAIN_C_A_BIAGIO_END:[{t:"その夜、レギオンは解体された。"}],MAIN_C_B_DANTE_END:[{t:"ありがとな！」"}]};
 let viewMode="story",lastStoryText="";
 // 結末の数（本文や分岐を増やしたら数え直して更新する）
 // 37＝エンディングIDの数、1505＝プレイヤーの選択で変わる「読まれる結末」の数（〇〇のランダムな名前は数えない）
 const ENDING_SCENARIO_COUNT=37,ENDING_STORY_VARIANTS=1505;
 const ENDING_CLOSING=`この物語には、みなさんの選択によって表示が変わるエンディングシナリオが${ENDING_SCENARIO_COUNT}本あります。\nそれらの組み合わせから生まれる結末は、全部で${ENDING_STORY_VARIANTS.toLocaleString("ja-JP")}通り。\n今夜みなさんがたどり着いたのは、そのうちのひとつです。`;
 const closingHtml=()=>`<div class="ending-closing">${ENDING_CLOSING.split("\n").map(l=>`<p>${escapeHtml(l)}</p>`).join("")}</div>`;
-function splitMain(e){const t=e.story||"";for(const m of STORY_SPLIT[e.id]||[]){const i=t.indexOf(m);if(i>=0){const k=i+m.length;return [t.slice(0,k),t.slice(k).replace(/^\n+/,"")];}}return [t,""];}
+function splitMain(e){const t=e.story||"";for(const m of STORY_SPLIT[e.id]||[]){const i=t.indexOf(m.t);if(i>=0){const k=m.before?i:i+m.t.length;return [t.slice(0,k).replace(/\n+$/,""),t.slice(k).replace(/^\n+/,"")];}}return [t,""];}
 // 時系列順：大（決着）→ 条件 → 大（その後）→ 個別 → エピローグ
 function buildStory(all){
  const [main,conditions,individual,epilogue]=all.map(a=>a[1]);const segs=[];const m=main[0];const [before,after]=splitMain(m);
