@@ -31,6 +31,7 @@ footer{font:12px/1.7 system-ui;text-align:center;color:#a4977f;margin-top:25px}
 .view-switch{display:flex;gap:8px;margin:16px 0 4px}.view-switch button{flex:1;padding:11px 8px;font-size:14px}.view-switch button[aria-pressed=true]{background:#6a3036;color:#fff3dc}
 #storyArea .seg{margin:0}#storyArea .seg-label{font:10px/1.4 ui-monospace,monospace;color:#a8916e;letter-spacing:.04em;margin:20px 0 2px;user-select:none}
 #storyArea .seg p{margin:0 0 .9em;font-size:16px;line-height:2.1;letter-spacing:.02em}#storyArea .seg.missing .seg-label:after{content:"　本文未登録";color:#b07a5a}
+.ending-closing{margin:22px 0 6px;padding:18px 14px;border-top:1px solid #c7ad82;border-bottom:1px solid #c7ad82;text-align:center}.ending-closing p{margin:0 0 .5em;font-size:15px;line-height:1.9;letter-spacing:.03em}.ending-closing p:nth-child(2){font-size:17px;font-weight:700;color:#673137}
 #storyArea .seg-break{text-align:center;color:#b99756;letter-spacing:.6em;margin:18px 0 0;font-size:12px}
 .story-text{margin-top:16px;border-top:1px solid #c7ad82;padding-top:14px;font-size:15px;line-height:2.1;letter-spacing:.02em;white-space:normal}.story-text p{margin:0 0 1.15em}.story-text p:last-child{margin-bottom:0}.story-notice{margin-top:12px;padding:11px;background:#f1e3c9;border:1px solid #c7ad82;font-size:13px;line-height:1.8}
 /* Smartphone-first refinements */
@@ -152,6 +153,11 @@ function block(title,items){
 // シナリオ表示：大エンディングを「決着の場面」と「その後」に分ける位置（この文の直後で区切る）
 const STORY_SPLIT={MAIN_B_A_CARLO_END:["二代にわたる因縁の対決は、ここに終わったのだ。"],MAIN_B_B_LUCIA_END:["二代にわたる因縁の対決は、ここに終わったのだ。","ジョン・クックとレオーネの因縁の対決は、ここに終わった。"],MAIN_B_C_DANTE_END:["魂が目覚めるのをずっと待っていたのだ。"],MAIN_B_UNRESOLVED_END:["因縁は、ここに終わったはずだった。"],MAIN_C_A_BIAGIO_END:["その夜、レギオンは解体された。"],MAIN_C_B_DANTE_END:["ありがとな！」"]};
 let viewMode="story",lastStoryText="";
+// 結末の数（本文や分岐を増やしたら数え直して更新する）
+// 37＝エンディングIDの数、1505＝プレイヤーの選択で変わる「読まれる結末」の数（〇〇のランダムな名前は数えない）
+const ENDING_SCENARIO_COUNT=37,ENDING_STORY_VARIANTS=1505;
+const ENDING_CLOSING=`この物語には、みなさんの選択によって表示が変わるエンディングシナリオが${ENDING_SCENARIO_COUNT}本あります。\nそれらの組み合わせから生まれる結末は、全部で${ENDING_STORY_VARIANTS.toLocaleString("ja-JP")}通り。\n今夜みなさんがたどり着いたのは、そのうちのひとつです。`;
+const closingHtml=()=>`<div class="ending-closing">${ENDING_CLOSING.split("\n").map(l=>`<p>${escapeHtml(l)}</p>`).join("")}</div>`;
 function splitMain(e){const t=e.story||"";for(const m of STORY_SPLIT[e.id]||[]){const i=t.indexOf(m);if(i>=0){const k=i+m.length;return [t.slice(0,k),t.slice(k).replace(/^\n+/,"")];}}return [t,""];}
 // 時系列順：大（決着）→ 条件 → 大（その後）→ 個別 → エピローグ
 function buildStory(all){
@@ -163,8 +169,8 @@ function buildStory(all){
  return segs;}
 function renderStory(segs){
  const choiceHtml=`<div class="luca-choice"><p>ルカは、永遠王の骸を――<br><small>ルカ役のプレイヤーが選んでください。</small></p><div class="buttons"><button type="button" class="secondary" data-luca-choice="shoot" aria-pressed="${lucaChoice==="shoot"}">撃つ</button><button type="button" class="secondary" data-luca-choice="spare" aria-pressed="${lucaChoice==="spare"}">撃たない</button></div></div>`;
- $("storyArea").innerHTML=segs.map(g=>g.pending?`<div class="seg"><div class="seg-label">最終エピローグ：ルカの選択待ち</div></div>`:`<div class="seg${g.text?"":" missing"}" data-seg="${escapeHtml(g.id)}"><div class="seg-label">${escapeHtml(g.id)}</div>${g.text.split("\n").filter(Boolean).map(p=>`<p>${escapeHtml(p)}</p>`).join("")}${g.choice?choiceHtml:""}</div>`).join("")+'<p class="seg-break">◆　◆　◆</p>';
- lastStoryText=segs.filter(g=>g.text).map(g=>g.text).join("\n\n");}
+ $("storyArea").innerHTML=segs.map(g=>g.pending?`<div class="seg"><div class="seg-label">最終エピローグ：ルカの選択待ち</div></div>`:`<div class="seg${g.text?"":" missing"}" data-seg="${escapeHtml(g.id)}"><div class="seg-label">${escapeHtml(g.id)}</div>${g.text.split("\n").filter(Boolean).map(p=>`<p>${escapeHtml(p)}</p>`).join("")}${g.choice?choiceHtml:""}</div>`).join("")+'<p class="seg-break">◆　◆　◆</p>'+closingHtml();
+ lastStoryText=segs.filter(g=>g.text).map(g=>g.text).join("\n\n")+"\n\n"+ENDING_CLOSING;}
 function applyView(){$("storyArea").hidden=viewMode!=="story";$("endArea").hidden=viewMode==="story";$("viewStory").setAttribute("aria-pressed",viewMode==="story");$("viewCards").setAttribute("aria-pressed",viewMode!=="story");}
 const REQUIRED=[["loyalty","ルカ｜誰に忠誠を誓ったか"],["carlo","カルロ｜何を選んだか"],["politics","ダンテ｜誰に政略を使ったか"],["bianca","ビアンカ｜子どもを守るための答え"],["trustee","ビアンカ｜誰に託したか"],["luciaGuess","ルチア｜犯人の正体"],["rescued","ビアージョ｜チンピラ救出人数"],["killer","犯人（ジョナ）は勝ったか"]];
 // 未選択の項目があれば、判定せずにエラーを出す
