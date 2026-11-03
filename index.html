@@ -55,7 +55,7 @@ button{min-height:48px;touch-action:manipulation}.survive label{min-height:52px;
 <section class="panel input-panel"><h2>Ⅰ. キャラクターの選択</h2><div class="grid">
 <div class="field"><label for="loyalty">ルカ｜誰に忠誠を誓ったか</label><select id="loyalty"><option value="">未選択</option><option value="carlo">カルロ</option><option value="jonah">ジョナ</option><option value="biagio">ビアージョ</option><option value="other">その他（レギオン＋1）</option></select></div>
 <div class="field"><label for="carlo">カルロ｜何を選んだか</label><select id="carlo"><option value="">未選択</option><option value="inherit">レギオンを継ぐ</option><option value="family">家族を取る</option></select></div>
-<div class="field"><label for="politics">ダンテ｜誰に政略を使ったか</label><select id="politics"><option value="">未選択</option><option value="carlo">カルロ</option><option value="biagio">ビアージョ</option><option value="lucia">ルチア</option><option value="other">その他（レギオン＋1）</option></select></div>
+<div class="field"><label for="politics">ダンテ｜誰に政略を使ったか</label><select id="politics"><option value="">未選択</option><option value="carlo">カルロ</option><option value="biagio">ビアージョ</option><option value="jonah">ジョナ</option><option value="other">その他（レギオン＋1）</option></select></div>
 <div class="field"><label for="bianca">ビアンカ｜子どもを守るための答え</label><select id="bianca"><option value="">未選択</option><option value="correct">正解</option><option value="wrong">不正解</option></select></div>
 <div class="field"><label for="trustee">ビアンカ｜誰に託したか</label><select id="trustee"><option value="">未選択</option><option value="carlo">カルロ</option><option value="biagio">ビアージョ</option><option value="lucia">ルチア</option><option value="luca">ルカ</option><option value="dante">ダンテ</option><option value="jonah">ジョナ</option></select></div>
 <div class="field"><label for="luciaGuess">ルチア｜犯人の正体</label><select id="luciaGuess"><option value="">未選択</option><option value="wrong">不正解</option><option value="correct">正解（犯人拘束時、ルチア生存）</option></select></div>
@@ -95,6 +95,8 @@ const STORY_MAIN_B_B_LUCIA_CARLO_DEAD="山羊のマスクの男を皆で取り�
 const LUCIA_SURVIVED_LINE_CARLO_DEAD="犯人が山羊マスクのジョナだと睨んでいたルチアは、間一髪のところで急所を外していた。彼女は生きていたのだ。";
 // B-d ボス未確定：〇〇は生存者からランダム
 const STORY_MAIN_B_UNRESOLVED="山羊のマスクの男を皆で取り囲み、拘束しようとしたその時、男は背筋が凍るような恐ろしい殺気を放った。\n山羊の男の背中から漂うオーラが空気を歪ませ、誰も身動きひとつ取れない。それは、明らかに今まで目の前に立っていた男とは違っていた。\n次の瞬間、乾いた銃声が館に響いた。引き金を引いたのは〇〇だった。山羊マスクの男は眉間を撃ち抜かれ、円卓の傍らに崩れ落ちた。\n〇〇が倒れた男から山羊のマスクを外すと、そこには20歳そこそこの、まだ幼さすら残る男の顔があった。しかし、彼がこの事件の犯人であることは明白だった。\nドォーン！　突然、激しい揺れと共に、2階の方から轟音が鳴り響いた。屋上が爆発し、2階の床、そしてわずかに地下の天井にまで穴が開いて、脱出不可能だったシャッターランドに強烈な明かりが差し込んだ。\n死体で見つかった謎の男――レギオンのボス、レオーネは、自らの命に危険が迫った時のために、保険として組織に連絡を入れていたのだ。\nこうして、彼らはシャッターランドから脱出した。\nかつてジェイクの永遠王、ジョン・クックを倒した男、レオーネ・ジョヴァンナ。レオーネに命を絶たれたジョン・クックの魂は、ジョナの体に宿り、目覚めの時をずっと待ち続けていた。ジョン・クックとレオーネの因縁は、ここに終わったはずだった。\nしかし、館に残された者たちは、誰ひとり口を開かなかった。レオーネの右腕だったルチアは、もういない。正統な後継者であるカルロの姿も、もうファミリーにはなかった。\n1年後。ボスの座は空席のまま、レギオンは幹部たちの合議によって、かろうじてその形を保っていた。街ではレギオンの縄張りを狙う小さな組織が次々と名乗りを上げ、夜ごとに銃声が響いた。レオーネが守り続けた秩序は、少しずつ、しかし確実にほころび始めていた。\n円卓の上座には、今も誰も座らない。人々はそこを「レオーネの席」と呼んだ。\nいつか、その席にふさわしい者が現れるのか。それとも、レギオンという名は、このまま街の闇に溶けて消えていくのか。\n答えを知る者は、まだ誰もいない。";
+// 大エンディングA：ダンテがジョナに政略を使っていた場合、最初の段落の直後に入れる
+const STORY_MAIN_A_DANTE_LINE="その中には、オットセイのマスクをつけたダンテの姿もあった。政略のため、ダンテは密かにジョナへ近づいていた。だが、その思惑はすべて、ジョナの中で目覚めつつあったジョン・クックに見抜かれていたのだ。裏で糸を引こうとした男は、誰よりも無惨な最期を遂げた。";
 // 最終エピローグB：ビアンカ生存（母）／ビアンカ死亡・カルロが家族を選択（父）／それ以外（カルロ死亡、またはカルロがボスを継いだ）は孤児院
 const STORY_EPILOGUE_B_MOTHER="ジョン・クックに取り憑かれたジョナが倒れてから、10年後。\n「リオ！　起きなさい！」\nドアの外から母親、ビアンカの声がする。いつも早起きをするリオが、この日は何故か体が重く、頭が冴えなかった。\n重い目を開くと、テーブルの上に見覚えのない手紙が置いてある。\nそこには、\n「お前の母親の命が惜しければ、私の言うことを聞け」\nと書いてあった……。\nリオの中で、男の声が聞こえる……。\n鏡に映る首元の星形のアザが、今、青く光った……。";
 const STORY_EPILOGUE_B_FATHER="ジョン・クックに取り憑かれたジョナが倒れてから、10年後。\n「リオ！　起きなさい！」\nドアの外から父親、カルロの声がする。いつも早起きをするリオが、この日は何故か体が重く、頭が冴えなかった。\n重い目を開くと、テーブルの上に見覚えのない手紙が置いてある。\nそこには、\n「お前の父親の命が惜しければ、私の言うことを聞け」\nと書いてあった……。\nリオの中で、男の声が聞こえる……。\n鏡に映る首元の星形のアザが、今、青く光った……。";
@@ -169,8 +171,8 @@ function block(title,items){
 const STORY_SPLIT={MAIN_B_A_CARLO_END:[{t:"ドォーン！",before:true}],MAIN_B_B_LUCIA_END:[{t:"ドォーン！",before:true}],MAIN_B_C_DANTE_END:[{t:"ドォーン！",before:true}],MAIN_B_UNRESOLVED_END:[{t:"ドォーン！",before:true}],MAIN_C_A_BIAGIO_END:[{t:"その夜、レギオンは解体された。"}],MAIN_C_B_DANTE_END:[{t:"ありがとな！」"}]};
 let viewMode="story",lastStoryText="";
 // 結末の数（本文や分岐を増やしたら数え直して更新する）
-// 36＝エンディングIDの数、1132＝プレイヤーの選択で変わる「読まれる結末」の数（〇〇のランダムな名前は数えない）
-const ENDING_SCENARIO_COUNT=36,ENDING_STORY_VARIANTS=1132;
+// 36＝エンディングIDの数、956＝プレイヤーの選択で変わる「読まれる結末」の数（〇〇のランダムな名前は数えない）
+const ENDING_SCENARIO_COUNT=36,ENDING_STORY_VARIANTS=956;
 const ENDING_CLOSING=`この物語には、みなさんの選択によって表示が変わるエンディングシナリオが${ENDING_SCENARIO_COUNT}本あります。\nそれらの組み合わせから生まれる結末は、全部で${ENDING_STORY_VARIANTS.toLocaleString("ja-JP")}通り。\n今夜みなさんがたどり着いたのは、そのうちのひとつです。`;
 const closingHtml=()=>`<div class="ending-closing">${ENDING_CLOSING.split("\n").map(l=>`<p>${escapeHtml(l)}</p>`).join("")}</div>`;
 function splitMain(e){const t=e.story||"";for(const m of STORY_SPLIT[e.id]||[]){const i=t.indexOf(m.t);if(i>=0){const k=m.before?i:i+m.t.length;return [t.slice(0,k).replace(/\n+$/,""),t.slice(k).replace(/^\n+/,"")];}}return [t,""];}
@@ -254,6 +256,7 @@ function calculate(keepScroll){
    const entry=el("MAIN_A_JOHN_COOK_END","A｜ジョン・クック END");
    if(!alive("luca"))entry.story=STORY_MAIN_A_ALL_DEAD;
    else entry.story=STORY_MAIN_A_LUCA_ALIVE;
+   if(politics==="jonah"){const L=entry.story.split("\n");L.splice(1,0,STORY_MAIN_A_DANTE_LINE);entry.story=L.join("\n");}
    main=[entry];
  }
  else if(faction==="legion"){
@@ -299,7 +302,7 @@ function calculate(keepScroll){
  individual.push(el(alive("luca")?"LUCA_ALIVE_END":"LUCA_DEAD_END",`ルカ｜${alive("luca")?"生存":"死亡"} END`,alive("luca")?`忠誠相手：${names[loyalty]||"その他"}`:""));
  if(!alive("carlo"))individual.push(el("CARLO_DEAD_END","カルロ｜死亡 END"));
  else if(carlo==="family")individual.push(el(alive("bianca")?"CARLO_FAMILY_BIANCA_ALIVE_END":"CARLO_FAMILY_BIANCA_DEAD_END",`カルロ｜家族を選択・ビアンカ${alive("bianca")?"生存":"死亡"}`));
- const politicsSuccess=alive("dante")&&((faction==="legion"&&["carlo","lucia"].includes(politics))||(faction==="vultures"&&politics==="biagio"));
+ const politicsSuccess=alive("dante")&&((faction==="legion"&&politics==="carlo")||(faction==="vultures"&&politics==="biagio"));
  if(!alive("dante"))individual.push(el("DANTE_DEAD_END","ダンテ｜死亡 END"));
  else if(!politicsSuccess)individual.push(el("DANTE_POLITICS_FAIL_END","ダンテ｜政略失敗 END"));
  individual.push(!alive("bianca")?el("BIANCA_DEAD_END","ビアンカ｜死亡 END"):
