@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>REQUIEⅢ｜上映コントロール</title>
+<style>
+:root{--bg:#14110e;--panel:#1e1915;--line:#3a3028;--gold:#c9a24f;--text:#efe6d4;--mute:#a8916e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,"Hiragino Sans","Yu Gothic",sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 18px 60px}
+h1{font:600 20px/1.3 serif;letter-spacing:.12em;margin:0 0 4px}h1 span{color:var(--gold)}
+.sub{color:var(--mute);font-size:13px;margin:0 0 20px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin:0 0 14px}
+h2{font-size:12px;letter-spacing:.25em;color:var(--mute);margin:0 0 12px;font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button{font:inherit;color:var(--text);background:#2a231d;border:1px solid var(--line);border-radius:8px;padding:10px 16px;cursor:pointer}
+button:hover{border-color:var(--gold)}button.main{background:var(--gold);color:#1a140d;border-color:var(--gold);font-weight:700}
+button:disabled{opacity:.4;cursor:default}
+.status{display:flex;gap:10px;align-items:center;font-size:14px}.dot{width:10px;height:10px;border-radius:50%;background:#6b5d4f}.dot.on{background:#6fcf7a;box-shadow:0 0 8px #6fcf7a}
+.story{font-size:13px;color:var(--mute);margin-top:10px;line-height:1.9}.story b{color:var(--text)}
+ol{margin:6px 0 0;padding-left:1.4em}li.now{color:var(--gold);font-weight:700}li.wait{color:#e08a5a}
+label{display:flex;align-items:center;gap:10px;font-size:14px}input[type=range]{width:200px;accent-color:var(--gold)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#3a2a1e;border:1px solid var(--gold);padding:10px 18px;border-radius:8px;display:none}
+kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+<h1>REQUIE<span>Ⅲ</span>　上映コントロール</h1>
+<p class="sub">モニターに映す映像を操作します。エンディングアプリで判定すると、ここに自動で届きます。</p>
+
+<section>
+<h2>モニター画面</h2>
+<div class="row"><button class="main" id="openMonitor">モニター画面を開く</button><div class="status"><span class="dot" id="monDot"></span><span id="monText">未接続</span></div></div>
+<p class="story">開いたウィンドウをモニターへドラッグし、モニター側の画面を一度クリックすると全画面になります。</p>
+</section>
+
+<section>
+<h2>映像</h2>
+<div class="row"><button data-cmd="op">OPを流す</button><button data-cmd="idle">待機映像（ゲーム中の背景）</button><button data-cmd="black">暗転</button></div>
+</section>
+
+<section>
+<h2>エンディング</h2>
+<div class="row"><button class="main" data-cmd="play" id="playBtn" disabled>エンディングを上映</button><button data-cmd="pause" id="pauseBtn">一時停止 / 再開</button><button data-cmd="nextPara">次の段落 <kbd>→</kbd></button><button data-cmd="nextSeg">次の章 <kbd>↓</kbd></button></div>
+<div class="story" id="storyInfo">まだエンディングが届いていません。<a href="index.html" target="requie3-ending" style="color:var(--gold)">エンディングアプリ</a>で判定してください。</div>
+</section>
+
+<section>
+<h2>調整</h2>
+<div class="row" style="gap:24px"><label>文字の速さ <input type="range" id="speed" min="6" max="30" value="14"><span id="speedV">14</span>文字/秒</label><label>音量 <input type="range" id="volume" min="0" max="100" value="80"><span id="volV">80</span></label></div>
+</section>
+<p class="sub">キーボード：<kbd>スペース</kbd> 一時停止/再開　<kbd>→</kbd> 次の段落　<kbd>↓</kbd> 次の章</p>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const ch=new BroadcastChannel("requie3-theater");const $=id=>document.getElementById(id);
+let story=null,mon=null,lastSeen=0;
+const cmd=(c,extra)=>ch.postMessage({type:"cmd",cmd:c,...extra});
+document.querySelectorAll("[data-cmd]").forEach(b=>b.onclick=()=>cmd(b.dataset.cmd));
+$("openMonitor").onclick=()=>window.open("theater.html","requie3-monitor","popup,width=1280,height=720");
+$("speed").oninput=e=>{$("speedV").textContent=e.target.value;cmd("speed",{value:+e.target.value});};
+$("volume").oninput=e=>{$("volV").textContent=e.target.value;cmd("volume",{value:e.target.value/100});};
+document.addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;if(e.code==="Space"){e.preventDefault();cmd("pause");}if(e.key==="ArrowRight")cmd("nextPara");if(e.key==="ArrowDown"){e.preventDefault();cmd("nextSeg");}});
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display="none",3500);}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function renderStory(){
+  if(!story){return;}$("playBtn").disabled=false;
+  const t=new Date(story.stamp);const hm=t.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"});
+  const segs=story.segs.filter(s=>s.pending||(s.text||"").trim());
+  $("storyInfo").innerHTML=`<b>${hm} に判定したエンディングを受信済み</b>（${segs.length}章）<ol>${story.segs.map((s,i)=>s.pending?`<li class="wait" data-i="${i}">ルカの選択待ち（エンディングアプリで選ぶと続きが流れます）</li>`:(s.text||"").trim()?`<li data-i="${i}">${esc(s.id)}</li>`:"").join("")}</ol>`;
+  markNow();
+}
+let nowIdx=-1,nowMode="";
+function markNow(){document.querySelectorAll("#storyInfo li").forEach(li=>li.classList.toggle("now",nowMode==="ending"&&+li.dataset.i===nowIdx));}
+ch.onmessage=({data:m})=>{
+  if(m.type==="story"){story=m;renderStory();toast("エンディングを受信しました");}
+  else if(m.type==="status"){lastSeen=Date.now();mon=m;nowIdx=m.si;nowMode=m.mode;
+    $("monText").textContent=`接続中　${({standby:"準備中（モニター画面をクリックしてください）",idle:"待機映像",op:"OP",black:"暗転",ending:"エンディング上映中",closing:"締めのメッセージ"})[m.mode]||m.mode}${m.paused?"（一時停止中）":""}${m.waiting?"：ルカの選択待ち":""}`;markNow();}
+  else if(m.type==="toast")toast(m.msg);
+  else if(m.type==="hello-monitor"){if(story)ch.postMessage({type:"story",...story});}
+};
+setInterval(()=>{const on=Date.now()-lastSeen<2500;$("monDot").classList.toggle("on",on);if(!on)$("monText").textContent="未接続（「モニター画面を開く」を押してください）";},1000);
+try{const s=JSON.parse(localStorage.getItem("requie3-story")||"null");if(s){story=s;renderStory();}}catch(e){}
+ch.postMessage({type:"hello"});
+</script>
+</body>
+</html>

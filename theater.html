@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>REQUIEⅢ｜モニター</title>
+<script src="theater-config.js"></script>
+<style>
+html,body{margin:0;height:100%;background:#000;color:#efe6d4;overflow:hidden;cursor:none}
+body.setup{cursor:default}
+.layer{position:fixed;inset:0;transition:opacity 1.2s ease}
+.hide{opacity:0;pointer-events:none}
+video{width:100%;height:100%;object-fit:cover;background:#000}
+#bgVideo{filter:brightness(.55)}
+#textLayer{display:flex;align-items:center;justify-content:center;background:radial-gradient(120% 90% at 50% 45%,rgba(30,20,14,.55),rgba(0,0,0,.92))}
+#text{width:min(78vw,1400px);font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Noto Serif CJK JP",serif;font-size:clamp(20px,2.35vw,44px);line-height:2;letter-spacing:.06em;text-shadow:0 2px 14px #000}
+#text p{margin:0 0 .7em;transition:opacity 1.4s ease,filter 1.4s ease}
+#text p.old{opacity:.28;filter:blur(.4px)}
+#text p.gone{opacity:0}
+#text p.line{color:#f3d9a0}
+#text .c{opacity:0;animation:in .45s ease forwards}
+@keyframes in{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
+#chapter{position:fixed;left:4vw;top:4vh;font:12px/1 ui-monospace,monospace;letter-spacing:.3em;color:#a8916e;opacity:.0;transition:opacity 1s}
+#closing{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.2em;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;font-size:clamp(18px,1.9vw,34px);line-height:1.9;letter-spacing:.08em}
+#closing img{width:min(46vw,720px);-webkit-mask-image:radial-gradient(ellipse closest-side,#000 30%,transparent 100%);mask-image:radial-gradient(ellipse closest-side,#000 30%,transparent 100%);margin-bottom:1em}
+#black{background:#000}
+#start{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#0b0907;font-family:system-ui,sans-serif;text-align:center;cursor:pointer}
+#start b{font-size:28px;letter-spacing:.1em;color:#f3d9a0}
+#start span{color:#a8916e;font-size:15px;line-height:1.8}
+</style>
+</head>
+<body class="setup">
+<div class="layer" id="bgLayer"><video id="bgVideo" muted playsinline loop></video></div>
+<div class="layer hide" id="textLayer"><div id="text"></div></div>
+<div class="layer hide" id="fxLayer"><video id="fxVideo" playsinline></video></div>
+<div class="layer hide" id="closing"></div>
+<div class="layer hide" id="black"></div>
+<div id="chapter"></div>
+<div class="layer" id="start"><b>REQUIEⅢ　モニター画面</b><span>このウィンドウをモニターに移動してから、<br>画面をクリックしてください（全画面になり、音が出せるようになります）。</span></div>
+
+<script>
+const C=window.THEATER_CONFIG;const $=id=>document.getElementById(id);
+const ch=new BroadcastChannel("requie3-theater");
+let story=null;            // {segs,closing,stamp}
+let st={mode:"standby",si:0,pi:0,paused:false,waiting:false,label:""};
+let speed=C.speed||14,volume=0.8,run=0; // run：再生のたびに増える番号（古い処理を止めるため）
+const bgm=new Audio();bgm.loop=true;let bgmKey="",bgmLevel=1,fadeTimer=null;
+
+function send(type,extra){ch.postMessage({type,...extra});}
+function status(){send("status",{mode:st.mode,si:st.si,pi:st.pi,paused:st.paused,waiting:st.waiting,label:st.label,total:story?story.segs.length:0,hasStory:!!story,stamp:story&&story.stamp});}
+setInterval(status,1000);
+
+// ---------- 音 ----------
+function setBgm(key,instant){
+  if(key===bgmKey)return;bgmKey=key;const src=key&&C.bgm[key];
+  fadeTo(0,instant?0:1500,()=>{if(!src){bgm.pause();return;}bgm.src=src;bgm.currentTime=0;bgm.play().catch(()=>{});fadeTo(bgmLevel,1500);});
+}
+function fadeTo(v,ms,done){clearInterval(fadeTimer);const from=bgm.volume,t0=performance.now();if(!ms){bgm.volume=v*volume;done&&done();return;}
+  fadeTimer=setInterval(()=>{const k=Math.min(1,(performance.now()-t0)/ms);bgm.volume=Math.max(0,Math.min(1,from+(v*volume-from)*k));if(k>=1){clearInterval(fadeTimer);done&&done();}},50);}
+function duck(on){bgmLevel=on?0.25:1;fadeTo(bgmLevel,800);}
+
+// ---------- 画面 ----------
+function show(id,on){$(id).classList.toggle("hide",!on);}
+function setBg(key){const v=$("bgVideo"),src=key&&C.videos[key];if(!src){v.pause();v.removeAttribute("src");v.load();return;}if(!v.src.endsWith(src)){v.src=src;}v.play().catch(()=>{});}
+const sleep=(ms,r)=>new Promise((res,rej)=>{const t0=performance.now();let acc=0,last=t0;(function tick(){if(r!==run)return rej("stop");const now=performance.now();if(!st.paused)acc+=now-last;last=now;if(acc>=ms)return res();requestAnimationFrame(tick);})();});
+const waitResume=r=>new Promise((res,rej)=>{(function tick(){if(r!==run)return rej("stop");if(!st.paused)return res();setTimeout(tick,100);})();});
+
+function playVideo(key,r,{toIdle}={}){return new Promise((res,rej)=>{const v=$("fxVideo"),src=C.videos[key];if(!src)return res();
+  v.src=src;v.currentTime=0;show("fxLayer",true);duck(true);v.play().catch(()=>{});
+  const end=()=>{v.onended=null;show("fxLayer",false);duck(false);clearInterval(chk);setTimeout(res,900);};
+  v.onended=end;v.onerror=end;let t0=Date.now();const chk=setInterval(()=>{if(!st.paused&&v.currentTime===0&&Date.now()-t0>4000){end();return;}if(st.paused)t0=Date.now();if(r!==run){clearInterval(chk);v.pause();show("fxLayer",false);duck(false);rej("stop");}else if(st.paused&&!v.paused)v.pause();else if(!st.paused&&v.paused&&!v.ended)v.play().catch(()=>{});},200);
+});}
+
+function stopAll(){run++;st.paused=false;st.waiting=false;$("fxVideo").pause();show("fxLayer",false);duck(false);}
+
+// ---------- 待機・OP ----------
+function idle(){stopAll();st.mode="idle";st.label="待機映像";show("textLayer",false);show("closing",false);show("black",false);$("chapter").style.opacity=0;setBg("idle");setBgm("idle");status();}
+async function op(){stopAll();const r=run;st.mode="op";st.label="OP";show("textLayer",false);show("closing",false);show("black",true);setBgm("",true);
+  try{await sleep(900,r);show("black",false);await playVideo("op",r);if(r===run)idle();}catch(e){}}
+function blackout(){stopAll();st.mode="black";st.label="暗転";show("black",true);setBgm("");status();}
+
+// ---------- エンディング ----------
+const paras=s=>(s.text||"").split("\n").map(x=>x.trim()).filter(Boolean);
+function cuesFor(seg){return (C.cues||[]).filter(c=>new RegExp(c.seg).test(seg.id));}
+function bgmFor(seg){const h=(C.sceneBgm||[]).find(b=>seg.id.includes(b.seg));return h?h.bgm:"ending";}
+
+async function typePara(p,r){
+  const box=$("text"),el=document.createElement("p");if(/^「/.test(p))el.classList.add("line");
+  [...box.children].forEach(x=>x.classList.add("old"));
+  while(box.children.length>3){box.firstElementChild.remove();}
+  box.appendChild(el);
+  for(const chr of p){if(r!==run)throw"stop";if(st.paused)await waitResume(r);
+    const s=document.createElement("span");s.className="c";s.textContent=chr;el.appendChild(s);
+    if(skipPara){continue;}
+    let d=1000/speed;if("。！？!?」".includes(chr))d*=6;else if("、…―".includes(chr))d*=3;
+    await sleep(d,r);}
+  skipPara=false;
+  await sleep(1100+Math.min(2600,p.length*35),r);
+}
+let skipPara=false,skipSeg=false;
+async function clearText(r){[...$("text").children].forEach(x=>x.classList.add("gone"));await sleep(1300,r);$("text").innerHTML="";}
+
+async function playEnding(){
+  if(!story){send("toast",{msg:"エンディングがまだ届いていません。エンディングアプリで判定してください。"});return;}
+  stopAll();const r=run;st.mode="ending";st.si=0;st.pi=0;
+  show("closing",false);show("black",true);setBg("");setBgm("",true);$("text").innerHTML="";
+  try{
+    await sleep(1500,r);show("black",false);show("textLayer",true);
+    for(st.si=0;st.si<story.segs.length;st.si++){
+      let seg=story.segs[st.si];
+      while(seg.pending){st.waiting=true;st.label="ルカの選択待ち";status();await sleep(500,r);seg=story.segs[st.si];}
+      st.waiting=false;const ps=paras(seg);if(!ps.length)continue;
+      st.label=seg.id;status();setBgm(bgmFor(seg));
+      $("chapter").textContent="";$("chapter").style.opacity=0;
+      const cues=cuesFor(seg);skipSeg=false;
+      for(const c of cues.filter(c=>c.at==="start")){await clearText(r);await playVideo(c.video,r);}
+      for(st.pi=0;st.pi<ps.length&&!skipSeg;st.pi++){
+        status();await typePara(ps[st.pi],r);
+        for(const c of cues.filter(c=>c.at!=="start"&&c.at!=="end"&&ps[st.pi].includes(c.at))){await clearText(r);await playVideo(c.video,r);}
+      }
+      for(const c of cues.filter(c=>c.at==="end")){await clearText(r);await playVideo(c.video,r);}
+      await clearText(r);await sleep(700,r);
+    }
+    // 締め
+    st.label="締めのメッセージ";status();show("textLayer",false);
+    $("closing").innerHTML='<img src="media/cover-title.jpg" alt="">'+story.closing.split("\n").map(l=>`<div>${l.replace(/[<>&]/g,"")}</div>`).join("");
+    show("closing",true);setBgm("epilogue");st.mode="closing";status();
+  }catch(e){}
+}
+
+// ---------- 受信 ----------
+ch.onmessage=({data:m})=>{
+  if(m.type==="story"){const prev=story;story={segs:m.segs,closing:m.closing,stamp:m.stamp};
+    // 再生中の更新（ルカの選択など）は、そのまま続きに反映
+    if(st.mode==="ending"&&prev&&st.si<story.segs.length){}status();}
+  else if(m.type==="cmd"){({idle,op,black:blackout,play:playEnding,
+     pause:()=>{st.paused=!st.paused;status();},
+     nextPara:()=>{skipPara=true;},nextSeg:()=>{skipSeg=true;skipPara=true;},
+     speed:()=>{speed=m.value;},volume:()=>{volume=m.value;fadeTo(bgmLevel,0);$("fxVideo").volume=m.value;}
+    }[m.cmd]||(()=>{}))();}
+  else if(m.type==="hello")status();
+};
+
+$("start").onclick=()=>{document.documentElement.requestFullscreen?.().catch(()=>{});document.body.classList.remove("setup");$("start").remove();
+  try{const s=JSON.parse(localStorage.getItem("requie3-story")||"null");if(s)story=s;}catch(e){}
+  idle();};
+send("hello-monitor");
+</script>
+</body>
+</html>
