@@ -9,49 +9,88 @@
 html,body{margin:0;height:100%;background:#000;color:#efe6d4;overflow:hidden;cursor:none}
 body.setup{cursor:default}
 .layer{position:fixed;inset:0;transition:opacity 1.2s ease}
-.hide{opacity:0;pointer-events:none}
+.hide{opacity:0!important;pointer-events:none}
 video{width:100%;height:100%;object-fit:cover;background:#000}
-#bgVideo{filter:brightness(.55)}
+.serif{font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Noto Serif CJK JP",serif}
+#bgVideo{filter:brightness(.6)}
+#bgImg{background:#000 center/cover no-repeat;animation:drift 60s ease-in-out infinite alternate;filter:brightness(.72)}
+@keyframes drift{from{transform:scale(1.04) translate(0,0)}to{transform:scale(1.14) translate(-2%,-1%)}}
+#timerLayer{display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(80% 70% at 50% 55%,rgba(0,0,0,.45),rgba(0,0,0,.15) 70%,transparent)}
+#tTitle{font-size:clamp(18px,2.2vw,40px);letter-spacing:.4em;color:#e7d3a6;text-shadow:0 2px 16px #000;margin-bottom:.3em}
+#tClock{font:300 clamp(80px,15vw,280px)/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.04em;font-variant-numeric:tabular-nums;text-shadow:0 6px 40px rgba(0,0,0,.8);transition:color .6s}
+#tClock.warn{color:#ff8a6a}
+#tClock.up{color:#ff5a3a;animation:pulse 1s ease-in-out infinite}
+#tNote{margin-top:.6em;font-size:clamp(14px,1.4vw,26px);letter-spacing:.3em;color:#e7d3a6;min-height:1.4em;text-shadow:0 2px 10px #000}
+#tPaused{position:fixed;right:3vw;top:3vh;font:600 14px system-ui;letter-spacing:.3em;color:#e7d3a6;opacity:.7}
+@keyframes pulse{50%{opacity:.35}}
+#castLayer{background:radial-gradient(100% 80% at 50% 40%,#2a1c15,#070504)}
+.castOne{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:5vw;opacity:0;transition:opacity 1s ease,transform 1.4s ease;transform:scale(1.03)}
+.castOne.on{opacity:1;transform:none}
+.castOne img{height:72vh;aspect-ratio:3/4;object-fit:cover;border:1px solid #c9a24f55;box-shadow:0 20px 80px #000}
+.castOne .role{font-size:clamp(40px,6vw,110px);letter-spacing:.15em;color:#f3e3c0}
+.castOne .who{margin-top:.6em;font-size:clamp(20px,2.6vw,48px);letter-spacing:.2em;color:#c9a24f}
+.castOne .lbl{font:600 clamp(11px,1vw,16px) system-ui;letter-spacing:.5em;color:#a8916e;margin-bottom:1.2em}
+#castAll{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity 1.5s}
+#castAll.on{opacity:1}
+#castAll h2{font-weight:400;letter-spacing:.5em;color:#c9a24f;font-size:clamp(16px,1.6vw,28px);margin:0 0 3vh}
+#castGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:1.6vw;width:90vw}
+#castGrid figure{margin:0;text-align:center}
+#castGrid img{width:100%;aspect-ratio:3/4;object-fit:cover;border:1px solid #c9a24f44}
+#castGrid b{display:block;margin-top:.6em;font-size:clamp(16px,1.7vw,32px);letter-spacing:.1em;color:#f3e3c0;font-weight:400}
+#castGrid span{display:block;font-size:clamp(12px,1.2vw,22px);color:#c9a24f;letter-spacing:.1em}
 #textLayer{display:flex;align-items:center;justify-content:center;background:radial-gradient(120% 90% at 50% 45%,rgba(30,20,14,.55),rgba(0,0,0,.92))}
-#text{width:min(78vw,1400px);font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Noto Serif CJK JP",serif;font-size:clamp(20px,2.35vw,44px);line-height:2;letter-spacing:.06em;text-shadow:0 2px 14px #000}
+#text{width:min(78vw,1400px);font-size:clamp(20px,2.35vw,44px);line-height:2;letter-spacing:.06em;text-shadow:0 2px 14px #000}
 #text p{margin:0 0 .7em;transition:opacity 1.4s ease,filter 1.4s ease}
 #text p.old{opacity:.28;filter:blur(.4px)}
 #text p.gone{opacity:0}
 #text p.line{color:#f3d9a0}
 #text .c{opacity:0;animation:in .45s ease forwards}
 @keyframes in{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
-#chapter{position:fixed;left:4vw;top:4vh;font:12px/1 ui-monospace,monospace;letter-spacing:.3em;color:#a8916e;opacity:.0;transition:opacity 1s}
-#closing{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.2em;font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;font-size:clamp(18px,1.9vw,34px);line-height:1.9;letter-spacing:.08em}
-#closing img{width:min(46vw,720px);-webkit-mask-image:radial-gradient(ellipse closest-side,#000 30%,transparent 100%);mask-image:radial-gradient(ellipse closest-side,#000 30%,transparent 100%);margin-bottom:1em}
-#black{background:#000}
+#endWait{display:flex;align-items:center;justify-content:center;background:#000}
+#endWait img,#closing img{width:min(46vw,720px);-webkit-mask-image:radial-gradient(ellipse closest-side,#000 30%,transparent 100%);mask-image:radial-gradient(ellipse closest-side,#000 30%,transparent 100%)}
+#endWait img{opacity:.55;animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.85}}
+#closing{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.2em;font-size:clamp(18px,1.9vw,34px);line-height:1.9;letter-spacing:.08em;background:#000}
+#closing img{margin-bottom:1em}
+#black,#blackout{background:#000}
 #start{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#0b0907;font-family:system-ui,sans-serif;text-align:center;cursor:pointer}
 #start b{font-size:28px;letter-spacing:.1em;color:#f3d9a0}
 #start span{color:#a8916e;font-size:15px;line-height:1.8}
 </style>
 </head>
 <body class="setup">
-<div class="layer" id="bgLayer"><video id="bgVideo" muted playsinline loop></video></div>
-<div class="layer hide" id="textLayer"><div id="text"></div></div>
+<div class="layer hide" id="bgImg"></div>
+<div class="layer hide" id="bgLayer"><video id="bgVideo" muted playsinline loop></video></div>
+<div class="layer hide serif" id="castLayer"><div id="castAll"><h2>CAST</h2><div id="castGrid"></div></div></div>
+<div class="layer hide serif" id="timerLayer"><div id="tTitle"></div><div id="tClock">15:00</div><div id="tNote"></div></div>
+<div class="layer hide" id="endWait"><img alt="" id="endWaitImg"></div>
+<div class="layer hide serif" id="textLayer"><div id="text"></div></div>
 <div class="layer hide" id="fxLayer"><video id="fxVideo" playsinline></video></div>
-<div class="layer hide" id="closing"></div>
+<div class="layer hide serif" id="closing"></div>
 <div class="layer hide" id="black"></div>
-<div id="chapter"></div>
+<div class="layer hide" id="blackout"></div>
+<div id="tPaused" hidden>PAUSE</div>
 <div class="layer" id="start"><b>REQUIEⅢ　モニター画面</b><span>このウィンドウをモニターに移動してから、<br>画面をクリックしてください（全画面になり、音が出せるようになります）。</span><span id="mediaState" style="color:#efe6d4">素材を確認中…</span></div>
 
 <script>
 const C=window.THEATER_CONFIG;const $=id=>document.getElementById(id);
 const ch=new BroadcastChannel("requie3-theater");
-let story=null;            // {segs,closing,stamp}
-let st={mode:"standby",si:0,pi:0,paused:false,waiting:false,label:""};
-let speed=C.speed||14,volume=0.8,run=0; // run：再生のたびに増える番号（古い処理を止めるため）
+let story=null;
+let show=null;
+let st={mode:"standby",si:0,pi:0,paused:false,waiting:false,label:"",scene:-1};
+let speed=C.speed||14,volume=0.8,run=0,started=false;
 const bgm=new Audio();bgm.loop=true;let bgmKey="",bgmLevel=1,fadeTimer=null;
+const sfx=new Audio();
 
 function send(type,extra){ch.postMessage({type,...extra});}
+function status(){send("status",{mode:st.mode,si:st.si,pi:st.pi,paused:st.paused,waiting:st.waiting,label:st.label,scene:st.scene,total:story?story.segs.length:0,hasStory:!!story,stamp:story&&story.stamp,media,started});}
+setInterval(status,1000);
+
 // ---------- 素材の先読み（PCに保存して、ネットがなくても流せるようにする） ----------
 const blobs={};let media={done:0,total:0,failed:[]};
 const U=src=>blobs[src]||src;
 async function preload(){
-  const list=[...new Set([...Object.values(C.videos||{}),...Object.values(C.bgm||{}),"media/cover-title.jpg"])];
+  const list=[...new Set([...Object.values(C.videos||{}),...Object.values(C.bgm||{}),...Object.values(C.images||{}),...Object.values(C.sounds||{}),...(C.characters||[]).map(c=>c.image),"media/cover-title.jpg"].filter(Boolean))];
   media={done:0,total:list.length,failed:[]};showMedia();
   let cache=null;try{cache=await caches.open("requie3-offline-v1");}catch(e){}
   await Promise.all(list.map(async src=>{
@@ -60,46 +99,88 @@ async function preload(){
       blobs[src]=URL.createObjectURL(await res.blob());}
     catch(e){media.failed.push(src);}
     media.done++;showMedia();}));
-  const img=document.querySelector("#closing img");if(img)img.src=U("media/cover-title.jpg");
+  $("endWaitImg").src=U("media/cover-title.jpg");buildCastGrid();
 }
-function showMedia(){const el=document.getElementById("mediaState");if(el){el.textContent=media.done<media.total?`素材を読み込み中…　${media.done} / ${media.total}`:media.failed.length?`読み込めなかった素材があります：${media.failed.join("、")}`:`素材 ${media.total} 件の準備完了（ネットがなくても上映できます）`;}status();}
-function status(){send("status",{mode:st.mode,si:st.si,pi:st.pi,paused:st.paused,waiting:st.waiting,label:st.label,total:story?story.segs.length:0,hasStory:!!story,stamp:story&&story.stamp,media});}
-setInterval(status,1000);
+function showMedia(){const el=$("mediaState");if(el){el.textContent=media.done<media.total?`素材を読み込み中…　${media.done} / ${media.total}`:media.failed.length?`読み込めなかった素材があります：${media.failed.join("、")}`:`素材 ${media.total} 件の準備完了（ネットがなくても上映できます）`;}status();}
 
 // ---------- 音 ----------
 function setBgm(key,instant){
   if(key===bgmKey)return;bgmKey=key;const src=key&&C.bgm[key];
   fadeTo(0,instant?0:1500,()=>{if(!src){bgm.pause();return;}bgm.src=U(src);bgm.currentTime=0;bgm.play().catch(()=>{});fadeTo(bgmLevel,1500);});
 }
-function fadeTo(v,ms,done){clearInterval(fadeTimer);const from=bgm.volume,t0=performance.now();if(!ms){bgm.volume=v*volume;done&&done();return;}
+function fadeTo(v,ms,done){clearInterval(fadeTimer);const from=bgm.volume,t0=performance.now();if(!ms){bgm.volume=Math.min(1,v*volume);done&&done();return;}
   fadeTimer=setInterval(()=>{const k=Math.min(1,(performance.now()-t0)/ms);bgm.volume=Math.max(0,Math.min(1,from+(v*volume-from)*k));if(k>=1){clearInterval(fadeTimer);done&&done();}},50);}
 function duck(on){bgmLevel=on?0.25:1;fadeTo(bgmLevel,800);}
+function playSfx(key){const s=C.sounds&&C.sounds[key];if(!s)return;sfx.src=U(s);sfx.volume=volume;sfx.currentTime=0;sfx.play().catch(()=>{});}
 
 // ---------- 画面 ----------
-function show(id,on){$(id).classList.toggle("hide",!on);}
-function setBg(key){const v=$("bgVideo"),src=key&&C.videos[key];if(!src){v.pause();v.removeAttribute("src");v.load();return;}if(v.dataset.src!==src){v.dataset.src=src;v.src=U(src);}v.play().catch(()=>{});}
-const sleep=(ms,r)=>new Promise((res,rej)=>{const t0=performance.now();let acc=0,last=t0;(function tick(){if(r!==run)return rej("stop");const now=performance.now();if(!st.paused)acc+=now-last;last=now;if(acc>=ms)return res();requestAnimationFrame(tick);})();});
+const LAYERS=["bgImg","bgLayer","castLayer","timerLayer","endWait","textLayer","fxLayer","closing","black"];
+function only(...ids){LAYERS.forEach(id=>$(id).classList.toggle("hide",!ids.includes(id)));}
+function show1(id,on){$(id).classList.toggle("hide",!on);}
+function setBackground(key){
+  const v=$("bgVideo");const img=C.images&&C.images[key],vid=C.videos&&C.videos[key];
+  if(vid){if(v.dataset.src!==vid){v.dataset.src=vid;v.src=U(vid);}v.play().catch(()=>{});return "bgLayer";}
+  v.pause();if(img){$("bgImg").style.backgroundImage=`url("${U(img)}")`;return "bgImg";}return null;
+}
+const sleep=(ms,r)=>new Promise((res,rej)=>{let acc=0,last=performance.now();(function tick(){if(r!==run)return rej("stop");const now=performance.now();if(!st.paused)acc+=now-last;last=now;if(acc>=ms)return res();requestAnimationFrame(tick);})();});
 const waitResume=r=>new Promise((res,rej)=>{(function tick(){if(r!==run)return rej("stop");if(!st.paused)return res();setTimeout(tick,100);})();});
 
-function playVideo(key,r,{toIdle}={}){return new Promise((res,rej)=>{const v=$("fxVideo"),src=C.videos[key];if(!src)return res();
-  v.dataset.src=src;v.src=U(src);v.currentTime=0;show("fxLayer",true);duck(true);v.play().catch(()=>{});
-  const end=()=>{v.onended=null;show("fxLayer",false);duck(false);clearInterval(chk);setTimeout(res,900);};
-  v.onended=end;v.onerror=end;let t0=Date.now();const chk=setInterval(()=>{if(!st.paused&&v.currentTime===0&&Date.now()-t0>4000){end();return;}if(st.paused)t0=Date.now();if(r!==run){clearInterval(chk);v.pause();show("fxLayer",false);duck(false);rej("stop");}else if(st.paused&&!v.paused)v.pause();else if(!st.paused&&v.paused&&!v.ended)v.play().catch(()=>{});},200);
+function playVideo(key,r){return new Promise((res,rej)=>{const v=$("fxVideo"),src=C.videos[key];if(!src)return res();
+  v.dataset.src=src;v.src=U(src);v.currentTime=0;v.volume=volume;show1("fxLayer",true);duck(true);v.play().catch(()=>{});
+  const end=()=>{v.onended=null;v.onerror=null;show1("fxLayer",false);duck(false);clearInterval(chk);setTimeout(res,900);};
+  v.onended=end;v.onerror=end;let t0=Date.now();const chk=setInterval(()=>{if(!st.paused&&v.currentTime===0&&Date.now()-t0>4000){end();return;}if(st.paused)t0=Date.now();if(r!==run){clearInterval(chk);v.pause();show1("fxLayer",false);duck(false);rej("stop");}else if(st.paused&&!v.paused)v.pause();else if(!st.paused&&v.paused&&!v.ended)v.play().catch(()=>{});},200);
 });}
 
-function stopAll(){run++;st.paused=false;st.waiting=false;$("fxVideo").pause();show("fxLayer",false);duck(false);}
+function stopAll(){run++;st.paused=false;st.waiting=false;$("fxVideo").pause();show1("fxLayer",false);duck(false);$("tPaused").hidden=true;}
 
-// ---------- 待機・OP ----------
-function idle(){stopAll();st.mode="idle";st.label="待機映像";show("textLayer",false);show("closing",false);show("black",false);$("chapter").style.opacity=0;setBg("idle");setBgm("idle");status();}
-async function op(){stopAll();const r=run;st.mode="op";st.label="OP";show("textLayer",false);show("closing",false);show("black",true);setBgm("",true);
-  try{await sleep(900,r);show("black",false);await playVideo("op",r);if(r===run)idle();}catch(e){}}
-function blackout(){stopAll();st.mode="black";st.label="暗転";show("black",true);setBgm("");status();}
+// ---------- 進行表のシーン ----------
+function enterScene(i){
+  const sc=C.scenes[i];if(!sc)return;stopAll();const r=run;st.scene=i;st.mode=sc.type;st.label=sc.title||sc.type;
+  $("text").innerHTML="";timerUpFor=null;
+  if(sc.type==="loop"){only(setBackground(sc.bg));setBgm(sc.bgm||"");}
+  else if(sc.type==="timer"){only(setBackground(sc.bg),"timerLayer");$("tTitle").textContent=sc.title||"";setBgm(sc.bgm||"");renderTimer();}
+  else if(sc.type==="cast"){only("castLayer");setBgm(sc.bgm||"");castReveal(r);}
+  else if(sc.type==="video"){only("black");setBgm("",true);(async()=>{try{await sleep(700,r);await playVideo(sc.video,r);if(sc.autoNext)send("sceneDone",{scene:i});}catch(e){}})();}
+  else if(sc.type==="ending"){only("endWait");setBgm(sc.bgm||"");}
+  status();
+}
+
+const esc=s=>String(s).replace(/[&<>"]/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[x]));
+function nameOf(c){return (show&&show.names&&show.names[c.id]||"").trim();}
+function buildCastGrid(){$("castGrid").innerHTML=(C.characters||[]).map(c=>`<figure><img src="${U(c.image)}" alt=""><b>${esc(c.name)}</b><span>${esc(nameOf(c)||"―")}</span></figure>`).join("");}
+async function castReveal(r){
+  const L=$("castLayer");L.querySelectorAll(".castOne").forEach(e=>e.remove());$("castAll").classList.remove("on");buildCastGrid();
+  try{
+    await sleep(1200,r);
+    for(const c of C.characters||[]){
+      const d=document.createElement("div");d.className="castOne";
+      d.innerHTML=`<img src="${U(c.image)}" alt=""><div><div class="lbl">CAST</div><div class="role">${esc(c.name)}</div><div class="who">${nameOf(c)?esc(nameOf(c)):"―"}</div></div>`;
+      L.appendChild(d);await sleep(60,r);d.classList.add("on");st.label="配役発表："+c.name;status();
+      await sleep(3600,r);d.classList.remove("on");await sleep(900,r);d.remove();
+    }
+    $("castAll").classList.add("on");st.label="配役発表：全員";status();
+  }catch(e){}
+}
+
+// タイマー（時間はコントロール側が持ち、ここは表示と時間切れの音だけ）
+let timerUpFor=null;
+function remaining(){const t=show&&show.timer;if(!t)return 0;return t.endAt?Math.max(0,t.endAt-Date.now()):t.remaining;}
+function renderTimer(){
+  const sc=C.scenes[st.scene];if(!sc||sc.type!=="timer")return;
+  const t=show&&show.timer;const ms=remaining();const s=Math.ceil(ms/1000);
+  $("tClock").textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+  const up=!!t&&t.started&&ms<=0;$("tClock").classList.toggle("up",up);$("tClock").classList.toggle("warn",!up&&!!t&&t.started&&s<=60);
+  $("tNote").textContent=up?"時間です":(t&&!t.started?"まもなく開始":"");
+  $("tPaused").hidden=!(t&&t.started&&!t.endAt&&ms>0);
+  const key=st.scene+":"+(t&&t.endAt);if(up&&t.endAt&&timerUpFor!==key){timerUpFor=key;playSfx("timeUp");}
+}
+setInterval(renderTimer,200);
 
 // ---------- エンディング ----------
 const paras=s=>(s.text||"").split("\n").map(x=>x.trim()).filter(Boolean);
 function cuesFor(seg){return (C.cues||[]).filter(c=>new RegExp(c.seg).test(seg.id));}
 function bgmFor(seg){const h=(C.sceneBgm||[]).find(b=>seg.id.includes(b.seg));return h?h.bgm:"ending";}
-
+let skipPara=false,skipSeg=false;
 async function typePara(p,r){
   const box=$("text"),el=document.createElement("p");if(/^「/.test(p))el.classList.add("line");
   [...box.children].forEach(x=>x.classList.add("old"));
@@ -113,21 +194,19 @@ async function typePara(p,r){
   skipPara=false;
   await sleep(1100+Math.min(2600,p.length*35),r);
 }
-let skipPara=false,skipSeg=false;
 async function clearText(r){[...$("text").children].forEach(x=>x.classList.add("gone"));await sleep(1300,r);$("text").innerHTML="";}
 
 async function playEnding(){
   if(!story){send("toast",{msg:"エンディングがまだ届いていません。エンディングアプリで判定してください。"});return;}
   stopAll();const r=run;st.mode="ending";st.si=0;st.pi=0;
-  show("closing",false);show("black",true);setBg("");setBgm("",true);$("text").innerHTML="";
+  only("black");setBgm("",true);$("text").innerHTML="";
   try{
-    await sleep(1500,r);show("black",false);show("textLayer",true);
+    await sleep(1500,r);only("textLayer");
     for(st.si=0;st.si<story.segs.length;st.si++){
       let seg=story.segs[st.si];
       while(seg.pending){st.waiting=true;st.label="ルカの選択待ち";status();await sleep(500,r);seg=story.segs[st.si];}
       st.waiting=false;const ps=paras(seg);if(!ps.length)continue;
       st.label=seg.id;status();setBgm(bgmFor(seg));
-      $("chapter").textContent="";$("chapter").style.opacity=0;
       const cues=cuesFor(seg);skipSeg=false;
       for(const c of cues.filter(c=>c.at==="start")){await clearText(r);await playVideo(c.video,r);}
       for(st.pi=0;st.pi<ps.length&&!skipSeg;st.pi++){
@@ -137,19 +216,24 @@ async function playEnding(){
       for(const c of cues.filter(c=>c.at==="end")){await clearText(r);await playVideo(c.video,r);}
       await clearText(r);await sleep(700,r);
     }
-    // 締め
-    st.label="締めのメッセージ";status();show("textLayer",false);
-    $("closing").innerHTML='<img src="'+U("media/cover-title.jpg")+'" alt="">'+story.closing.split("\n").map(l=>`<div>${l.replace(/[<>&]/g,"")}</div>`).join("");
-    show("closing",true);setBgm("epilogue");st.mode="closing";status();
+    st.label="締めのメッセージ";status();
+    $("closing").innerHTML=`<img src="${U("media/cover-title.jpg")}" alt="">`+story.closing.split("\n").map(l=>`<div>${esc(l)}</div>`).join("");
+    only("closing");setBgm("epilogue");st.mode="closing";status();
   }catch(e){}
 }
 
 // ---------- 受信 ----------
+function applyShow(s){
+  const prev=show;show=s;
+  if(!started)return;
+  if(!prev||prev.scene!==s.scene||prev.nonce!==s.nonce)enterScene(s.scene);
+  else if(JSON.stringify(prev.names)!==JSON.stringify(s.names))buildCastGrid();
+  show1("blackout",!!s.blackout);renderTimer();
+}
 ch.onmessage=({data:m})=>{
-  if(m.type==="story"){const prev=story;story={segs:m.segs,closing:m.closing,stamp:m.stamp};
-    // 再生中の更新（ルカの選択など）は、そのまま続きに反映
-    if(st.mode==="ending"&&prev&&st.si<story.segs.length){}status();}
-  else if(m.type==="cmd"){({idle,op,black:blackout,play:playEnding,
+  if(m.type==="story"){story={segs:m.segs,closing:m.closing,stamp:m.stamp};status();}
+  else if(m.type==="show")applyShow(m.show);
+  else if(m.type==="cmd"){({play:playEnding,
      pause:()=>{st.paused=!st.paused;status();},
      nextPara:()=>{skipPara=true;},nextSeg:()=>{skipSeg=true;skipPara=true;},
      speed:()=>{speed=m.value;},volume:()=>{volume=m.value;fadeTo(bgmLevel,0);$("fxVideo").volume=m.value;}
@@ -158,8 +242,9 @@ ch.onmessage=({data:m})=>{
 };
 
 $("start").onclick=()=>{document.documentElement.requestFullscreen?.().catch(()=>{});document.body.classList.remove("setup");$("start").remove();
-  try{const s=JSON.parse(localStorage.getItem("requie3-story")||"null");if(s)story=s;}catch(e){}
-  idle();};
+  started=true;try{const s=JSON.parse(localStorage.getItem("requie3-story")||"null");if(s)story=s;}catch(e){}
+  let saved=null;try{saved=JSON.parse(localStorage.getItem("requie3-show")||"null");}catch(e){}
+  const s=show||saved||{scene:0,nonce:0,names:{},timer:null};show=null;applyShow(s);send("hello-monitor");};
 send("hello-monitor");
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 preload();

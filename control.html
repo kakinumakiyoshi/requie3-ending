@@ -4,86 +4,166 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>REQUIEⅢ｜上映コントロール</title>
+<script src="theater-config.js"></script>
 <style>
 :root{--bg:#14110e;--panel:#1e1915;--line:#3a3028;--gold:#c9a24f;--text:#efe6d4;--mute:#a8916e}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,"Hiragino Sans","Yu Gothic",sans-serif}
-main{max-width:860px;margin:0 auto;padding:24px 18px 60px}
+main{max-width:980px;margin:0 auto;padding:22px 18px 60px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+header,.wide{grid-column:1/-1}
 h1{font:600 20px/1.3 serif;letter-spacing:.12em;margin:0 0 4px}h1 span{color:var(--gold)}
-.sub{color:var(--mute);font-size:13px;margin:0 0 20px}
-section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin:0 0 14px}
+.sub{color:var(--mute);font-size:13px;margin:0}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
 h2{font-size:12px;letter-spacing:.25em;color:var(--mute);margin:0 0 12px;font-weight:600}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-button{font:inherit;color:var(--text);background:#2a231d;border:1px solid var(--line);border-radius:8px;padding:10px 16px;cursor:pointer}
+button{font:inherit;color:var(--text);background:#2a231d;border:1px solid var(--line);border-radius:8px;padding:9px 14px;cursor:pointer}
 button:hover{border-color:var(--gold)}button.main{background:var(--gold);color:#1a140d;border-color:var(--gold);font-weight:700}
-button:disabled{opacity:.4;cursor:default}
-.status{display:flex;gap:10px;align-items:center;font-size:14px}.dot{width:10px;height:10px;border-radius:50%;background:#6b5d4f}.dot.on{background:#6fcf7a;box-shadow:0 0 8px #6fcf7a}
+button:disabled{opacity:.35;cursor:default}button.on{background:#5a2a1e;border-color:#e08a5a}
+.status{display:flex;gap:10px;align-items:center;font-size:14px}.dot{width:10px;height:10px;border-radius:50%;background:#6b5d4f;flex:none}.dot.on{background:#6fcf7a;box-shadow:0 0 8px #6fcf7a}
+.note{font-size:13px;color:var(--mute);margin:10px 0 0;line-height:1.8}
+#scenes{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}
+#scenes button{width:100%;text-align:left;display:flex;gap:10px;align-items:center}
+#scenes button .n{color:var(--mute);font-size:12px;width:1.6em}
+#scenes button small{margin-left:auto;color:var(--mute)}
+#scenes button.now{border-color:var(--gold);background:#3a2e1f;color:#fff}
+#scenes button.now .n{color:var(--gold)}
+#nowLabel{color:var(--gold);font-size:14px;margin-top:8px}
+#clock{font:300 64px/1 "Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;text-align:center;margin:6px 0 12px}
+#clock.warn{color:#ff8a6a}#clock.up{color:#ff5a3a}
+.names{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center}
+.names label{font-size:14px;color:var(--mute)}
+input[type=text]{font:inherit;background:#120f0c;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:7px 10px;width:100%}
 .story{font-size:13px;color:var(--mute);margin-top:10px;line-height:1.9}.story b{color:var(--text)}
-ol{margin:6px 0 0;padding-left:1.4em}li.now{color:var(--gold);font-weight:700}li.wait{color:#e08a5a}
-label{display:flex;align-items:center;gap:10px;font-size:14px}input[type=range]{width:200px;accent-color:var(--gold)}
+ol.segs{margin:6px 0 0;padding-left:1.4em}li.now{color:var(--gold);font-weight:700}li.wait{color:#e08a5a}
+label.rng{display:flex;align-items:center;gap:10px;font-size:14px}input[type=range]{width:180px;accent-color:var(--gold)}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#3a2a1e;border:1px solid var(--gold);padding:10px 18px;border-radius:8px;display:none}
 kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;color:var(--mute)}
+@media(max-width:760px){main{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main>
-<h1>REQUIE<span>Ⅲ</span>　上映コントロール</h1>
-<p class="sub">モニターに映す映像を操作します。エンディングアプリで判定すると、ここに自動で届きます。</p>
+<header><h1>REQUIE<span>Ⅲ</span>　上映コントロール</h1><p class="sub">モニターに流すものを操作します。エンディングアプリで判定した結果は、ここに自動で届きます。</p></header>
 
-<section>
+<section class="wide">
 <h2>モニター画面</h2>
 <div class="row"><button class="main" id="openMonitor">モニター画面を開く</button><div class="status"><span class="dot" id="monDot"></span><span id="monText">未接続</span></div></div>
-<p class="story" id="mediaInfo"></p><p class="story">開いたウィンドウをモニターへドラッグし、モニター側の画面を一度クリックすると全画面になります。</p>
+<p class="note" id="mediaInfo"></p>
+<p class="note">開いたウィンドウをモニターへドラッグし、モニター側の画面を一度クリックすると全画面になります。</p>
 </section>
 
 <section>
-<h2>映像</h2>
-<div class="row"><button data-cmd="op">OPを流す</button><button data-cmd="idle">待機映像（ゲーム中の背景）</button><button data-cmd="black">暗転</button></div>
+<h2>進行</h2>
+<ol id="scenes"></ol>
+<div class="row"><button id="prevScene">◀ 前へ</button><button class="main" id="nextScene">次へ ▶</button><button id="blackout">暗転</button></div>
+<div id="nowLabel"></div>
+</section>
+
+<section>
+<h2>タイマー</h2>
+<div id="clock">--:--</div>
+<div class="row" style="justify-content:center"><button class="main" id="tStart">スタート</button><button id="tMinus">−1分</button><button id="tPlus">＋1分</button><button id="tReset">リセット</button></div>
+<p class="note" id="tInfo">タイマーのあるシーン（読み込み時間・調査・議論など）で使えます。</p>
+</section>
+
+<section>
+<h2>配役（プレイヤー名）</h2>
+<div class="names" id="names"></div>
+<div class="row" style="margin-top:12px"><button id="castAgain">配役発表を最初から流す</button></div>
 </section>
 
 <section>
 <h2>エンディング</h2>
-<div class="row"><button class="main" data-cmd="play" id="playBtn" disabled>エンディングを上映</button><button data-cmd="pause" id="pauseBtn">一時停止 / 再開</button><button data-cmd="nextPara">次の段落 <kbd>→</kbd></button><button data-cmd="nextSeg">次の章 <kbd>↓</kbd></button></div>
+<div class="row"><button class="main" id="playBtn" disabled>エンディングを上映</button><button data-cmd="pause">一時停止 / 再開</button></div>
+<div class="row" style="margin-top:8px"><button data-cmd="nextPara">次の段落 <kbd>→</kbd></button><button data-cmd="nextSeg">次の章 <kbd>↓</kbd></button></div>
 <div class="story" id="storyInfo">まだエンディングが届いていません。<a href="index.html" target="requie3-ending" style="color:var(--gold)">エンディングアプリ</a>で判定してください。</div>
 </section>
 
-<section>
+<section class="wide">
 <h2>調整</h2>
-<div class="row" style="gap:24px"><label>文字の速さ <input type="range" id="speed" min="6" max="30" value="14"><span id="speedV">14</span>文字/秒</label><label>音量 <input type="range" id="volume" min="0" max="100" value="80"><span id="volV">80</span></label></div>
+<div class="row" style="gap:24px"><label class="rng">文字の速さ <input type="range" id="speed" min="6" max="30" value="14"><span id="speedV">14</span>文字/秒</label><label class="rng">音量 <input type="range" id="volume" min="0" max="100" value="80"><span id="volV">80</span></label></div>
+<p class="note">キーボード：<kbd>N</kbd> 次のシーン　<kbd>スペース</kbd> タイマー開始/一時停止（エンディング中は上映の一時停止）　<kbd>→</kbd> 次の段落　<kbd>↓</kbd> 次の章</p>
 </section>
-<p class="sub">キーボード：<kbd>スペース</kbd> 一時停止/再開　<kbd>→</kbd> 次の段落　<kbd>↓</kbd> 次の章</p>
 </main>
 <div class="toast" id="toast"></div>
 <script>
-const ch=new BroadcastChannel("requie3-theater");const $=id=>document.getElementById(id);
-let story=null,mon=null,lastSeen=0;
+const C=window.THEATER_CONFIG;const ch=new BroadcastChannel("requie3-theater");const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let story=null,lastSeen=0,mon=null;
 const cmd=(c,extra)=>ch.postMessage({type:"cmd",cmd:c,...extra});
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display="none",3500);}
+
+// ===== 進行の状態（ここが親。モニターはこれに従って表示する） =====
+let show={scene:0,nonce:0,names:{},timer:null,blackout:false};
+try{const s=JSON.parse(localStorage.getItem("requie3-show")||"null");if(s&&C.scenes[s.scene])show=Object.assign(show,s);}catch(e){}
+function pushShow(){try{localStorage.setItem("requie3-show",JSON.stringify(show));}catch(e){}ch.postMessage({type:"show",show});renderAll();}
+const sc=()=>C.scenes[show.scene]||{};
+function goScene(i,force){if(i<0||i>=C.scenes.length)return;if(i===show.scene&&!force)return;
+  show.scene=i;show.nonce++;const s=C.scenes[i];
+  show.timer=s.type==="timer"?{total:(s.minutes||10)*60000,remaining:(s.minutes||10)*60000,endAt:null,started:false}:null;pushShow();}
+
+$("scenes").innerHTML=C.scenes.map((s,i)=>`<li><button data-i="${i}"><span class="n">${i+1}</span>${esc(s.title||s.type)}<small>${s.type==="timer"?(s.minutes||10)+"分":({loop:"背景",cast:"配役",video:"映像",ending:"エンディング"})[s.type]||""}</small></button></li>`).join("");
+$("scenes").onclick=e=>{const b=e.target.closest("button");if(b)goScene(+b.dataset.i);};
+$("prevScene").onclick=()=>goScene(show.scene-1);$("nextScene").onclick=()=>goScene(show.scene+1);
+$("blackout").onclick=()=>{show.blackout=!show.blackout;pushShow();};
+
+// ===== タイマー =====
+const rem=()=>{const t=show.timer;if(!t)return 0;return t.endAt?Math.max(0,t.endAt-Date.now()):t.remaining;};
+function tToggle(){const t=show.timer;if(!t)return;if(t.endAt){t.remaining=rem();t.endAt=null;}else{if(t.remaining<=0)return;t.started=true;t.endAt=Date.now()+t.remaining;}pushShow();}
+function tAdd(ms){const t=show.timer;if(!t)return;if(t.endAt)t.endAt=Math.max(Date.now(),t.endAt+ms);else t.remaining=Math.max(0,t.remaining+ms);pushShow();}
+$("tStart").onclick=tToggle;$("tPlus").onclick=()=>tAdd(60000);$("tMinus").onclick=()=>tAdd(-60000);
+$("tReset").onclick=()=>{const t=show.timer;if(!t)return;show.timer={total:t.total,remaining:t.total,endAt:null,started:false};pushShow();};
+function renderClock(){const t=show.timer;const on=!!t;["tStart","tPlus","tMinus","tReset"].forEach(id=>$(id).disabled=!on);
+  if(!on){$("clock").textContent="--:--";$("clock").className="";$("tInfo").textContent="タイマーのあるシーン（読み込み時間・調査・議論など）で使えます。";return;}
+  const s=Math.ceil(rem()/1000);$("clock").textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+  $("clock").className=t.started&&s<=0?"up":t.started&&s<=60?"warn":"";
+  $("tStart").textContent=t.endAt?"一時停止":(t.started?"再開":"スタート");
+  $("tInfo").textContent=`${sc().title}：${Math.round(t.total/60000)}分　${t.endAt?"進行中":t.started?(s<=0?"時間切れ":"一時停止中"):"開始前（モニターには「まもなく開始」と出ます）"}`;}
+setInterval(renderClock,250);
+
+// ===== 配役 =====
+$("names").innerHTML=(C.characters||[]).map(c=>`<label for="n_${c.id}">${esc(c.name)}</label><input type="text" id="n_${c.id}" data-id="${c.id}" placeholder="プレイヤー名" value="${esc(show.names[c.id]||"")}">`).join("");
+$("names").oninput=e=>{const id=e.target.dataset.id;if(!id)return;show.names[id]=e.target.value;clearTimeout(pushShow.t);pushShow.t=setTimeout(pushShow,300);};
+$("castAgain").onclick=()=>{const i=C.scenes.findIndex(s=>s.type==="cast");if(i>=0)goScene(i,true);};
+
+// ===== エンディング =====
 document.querySelectorAll("[data-cmd]").forEach(b=>b.onclick=()=>cmd(b.dataset.cmd));
+$("playBtn").onclick=()=>{const i=C.scenes.findIndex(s=>s.type==="ending");if(i>=0&&show.scene!==i){goScene(i);setTimeout(()=>cmd("play"),500);}else cmd("play");};
+function renderStory(){
+  if(!story)return;$("playBtn").disabled=false;
+  const hm=new Date(story.stamp).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"});
+  const n=story.segs.filter(s=>s.pending||(s.text||"").trim()).length;
+  $("storyInfo").innerHTML=`<b>${hm} に判定したエンディングを受信済み</b>（${n}章）<ol class="segs">${story.segs.map((s,i)=>s.pending?`<li class="wait" data-i="${i}">ルカの選択待ち（エンディングアプリで選ぶと続きが流れます）</li>`:(s.text||"").trim()?`<li data-i="${i}">${esc(s.id)}</li>`:"").join("")}</ol>`;markNow();}
+function markNow(){document.querySelectorAll("#storyInfo li").forEach(li=>li.classList.toggle("now",!!mon&&mon.mode==="ending"&&+li.dataset.i===mon.si));}
+
+function renderAll(){
+  document.querySelectorAll("#scenes button").forEach(b=>b.classList.toggle("now",+b.dataset.i===show.scene));
+  $("prevScene").disabled=show.scene<=0;$("nextScene").disabled=show.scene>=C.scenes.length-1;
+  $("blackout").classList.toggle("on",!!show.blackout);$("blackout").textContent=show.blackout?"暗転を解除":"暗転";
+  renderClock();}
+
+// ===== 調整 =====
 $("openMonitor").onclick=()=>window.open("theater.html","requie3-monitor","popup,width=1280,height=720");
 $("speed").oninput=e=>{$("speedV").textContent=e.target.value;cmd("speed",{value:+e.target.value});};
 $("volume").oninput=e=>{$("volV").textContent=e.target.value;cmd("volume",{value:e.target.value/100});};
-document.addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;if(e.code==="Space"){e.preventDefault();cmd("pause");}if(e.key==="ArrowRight")cmd("nextPara");if(e.key==="ArrowDown"){e.preventDefault();cmd("nextSeg");}});
-function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display="none",3500);}
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-function renderStory(){
-  if(!story){return;}$("playBtn").disabled=false;
-  const t=new Date(story.stamp);const hm=t.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"});
-  const segs=story.segs.filter(s=>s.pending||(s.text||"").trim());
-  $("storyInfo").innerHTML=`<b>${hm} に判定したエンディングを受信済み</b>（${segs.length}章）<ol>${story.segs.map((s,i)=>s.pending?`<li class="wait" data-i="${i}">ルカの選択待ち（エンディングアプリで選ぶと続きが流れます）</li>`:(s.text||"").trim()?`<li data-i="${i}">${esc(s.id)}</li>`:"").join("")}</ol>`;
-  markNow();
-}
-let nowIdx=-1,nowMode="";
-function markNow(){document.querySelectorAll("#storyInfo li").forEach(li=>li.classList.toggle("now",nowMode==="ending"&&+li.dataset.i===nowIdx));}
+document.addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;
+  if(e.code==="Space"){e.preventDefault();if(sc().type==="timer")tToggle();else cmd("pause");}
+  if(e.key==="n"||e.key==="N")goScene(show.scene+1);
+  if(e.key==="ArrowRight")cmd("nextPara");if(e.key==="ArrowDown"){e.preventDefault();cmd("nextSeg");}});
+
+// ===== 受信 =====
 ch.onmessage=({data:m})=>{
   if(m.type==="story"){story=m;renderStory();toast("エンディングを受信しました");}
-  else if(m.type==="status"){lastSeen=Date.now();mon=m;nowIdx=m.si;nowMode=m.mode;
-    $("monText").textContent=`接続中　${({standby:"準備中（モニター画面をクリックしてください）",idle:"待機映像",op:"OP",black:"暗転",ending:"エンディング上映中",closing:"締めのメッセージ"})[m.mode]||m.mode}${m.paused?"（一時停止中）":""}${m.waiting?"：ルカの選択待ち":""}`;markNow();if(m.media){const d=m.media;$("mediaInfo").innerHTML=d.done<d.total?`素材を読み込み中… ${d.done} / ${d.total}`:d.failed.length?`<span style="color:#e08a5a">読み込めなかった素材：${esc(d.failed.join("、"))}</span>`:`<span style="color:#6fcf7a">● 素材 ${d.total} 件の準備完了（ネットがなくても上映できます）</span>`;}}
+  else if(m.type==="status"){lastSeen=Date.now();mon=m;
+    $("monText").textContent=m.started?`接続中　いま：${m.label||""}${m.paused?"（一時停止中）":""}`:"接続中（モニター画面をクリックしてください）";
+    $("nowLabel").textContent=m.started?`モニター：${m.label||""}`:"";markNow();
+    if(m.media){const d=m.media;$("mediaInfo").innerHTML=d.done<d.total?`素材を読み込み中… ${d.done} / ${d.total}`:d.failed.length?`<span style="color:#e08a5a">読み込めなかった素材：${esc(d.failed.join("、"))}</span>`:`<span style="color:#6fcf7a">● 素材 ${d.total} 件の準備完了（ネットがなくても上映できます）</span>`;}}
+  else if(m.type==="sceneDone"){if(m.scene===show.scene)goScene(show.scene+1);}
   else if(m.type==="toast")toast(m.msg);
-  else if(m.type==="hello-monitor"){if(story)ch.postMessage({type:"story",...story});}
+  else if(m.type==="hello-monitor"){ch.postMessage({type:"show",show});if(story)ch.postMessage({type:"story",...story});}
 };
-setInterval(()=>{const on=Date.now()-lastSeen<2500;$("monDot").classList.toggle("on",on);if(!on)$("monText").textContent="未接続（「モニター画面を開く」を押してください）";},1000);
+setInterval(()=>{const on=Date.now()-lastSeen<2500;$("monDot").classList.toggle("on",on);if(!on){$("monText").textContent="未接続（「モニター画面を開く」を押してください）";$("nowLabel").textContent="";}},1000);
 try{const s=JSON.parse(localStorage.getItem("requie3-story")||"null");if(s){story=s;renderStory();}}catch(e){}
-ch.postMessage({type:"hello"});
-
+renderAll();ch.postMessage({type:"hello"});ch.postMessage({type:"show",show});
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
