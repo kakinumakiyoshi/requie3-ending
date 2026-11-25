@@ -73,6 +73,7 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 <div class="layer" id="start"><b>REQUIEⅢ　モニター画面</b><span>このウィンドウをモニターに移動してから、<br>画面をクリックしてください（全画面になり、音が出せるようになります）。</span><span id="mediaState" style="color:#efe6d4">素材を確認中…</span></div>
 
 <script>
+const BUILD="2026-11-25-2";
 const C=window.THEATER_CONFIG;const $=id=>document.getElementById(id);
 const ch=new BroadcastChannel("requie3-theater");
 let story=null;
@@ -83,7 +84,7 @@ const bgm=new Audio();bgm.loop=true;let bgmKey="",bgmLevel=1,fadeTimer=null;
 const sfx=new Audio();
 
 function send(type,extra){ch.postMessage({type,...extra});}
-function status(){send("status",{mode:st.mode,si:st.si,pi:st.pi,paused:st.paused,waiting:st.waiting,label:st.label,scene:st.scene,total:story?story.segs.length:0,hasStory:!!story,stamp:story&&story.stamp,media,started});}
+function status(){send("status",{mode:st.mode,si:st.si,pi:st.pi,paused:st.paused,waiting:st.waiting,label:st.label,scene:st.scene,total:story?story.segs.length:0,hasStory:!!story,stamp:story&&story.stamp,media,started,build:BUILD});}
 setInterval(status,1000);
 
 // ---------- 素材の先読み（PCに保存して、ネットがなくても流せるようにする） ----------
@@ -232,7 +233,7 @@ function applyShow(s){
 }
 ch.onmessage=({data:m})=>{
   if(m.type==="story"){story={segs:m.segs,closing:m.closing,stamp:m.stamp};status();}
-  else if(m.type==="show")applyShow(m.show);
+  else if(m.type==="show"){if(m.build&&m.build!==BUILD){if(!sessionStorage.getItem("requie3-reloaded-"+m.build)){sessionStorage.setItem("requie3-reloaded-"+m.build,"1");location.reload();}return;}applyShow(m.show);}
   else if(m.type==="cmd"){({play:playEnding,
      pause:()=>{st.paused=!st.paused;status();},
      nextPara:()=>{skipPara=true;},nextSeg:()=>{skipSeg=true;skipPara=true;},

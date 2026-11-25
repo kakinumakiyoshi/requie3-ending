@@ -47,7 +47,7 @@ kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;
 <section class="wide">
 <h2>モニター画面</h2>
 <div class="row"><button class="main" id="openMonitor">モニター画面を開く</button><div class="status"><span class="dot" id="monDot"></span><span id="monText">未接続</span></div></div>
-<p class="note" id="mediaInfo"></p>
+<p id="warn" hidden style="background:#5a2a1e;border:1px solid #e08a5a;border-radius:8px;padding:10px 14px;margin:12px 0 0;font-weight:700"></p><p class="note" id="mediaInfo"></p>
 <p class="note">開いたウィンドウをモニターへドラッグし、モニター側の画面を一度クリックすると全画面になります。</p>
 </section>
 
@@ -86,6 +86,7 @@ kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;
 </main>
 <div class="toast" id="toast"></div>
 <script>
+const BUILD="2026-11-25-2";
 const C=window.THEATER_CONFIG;const ch=new BroadcastChannel("requie3-theater");const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let story=null,lastSeen=0,mon=null;
@@ -95,7 +96,7 @@ function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";cle
 // ===== 進行の状態（ここが親。モニターはこれに従って表示する） =====
 let show={scene:0,nonce:0,names:{},timer:null,blackout:false};
 try{const s=JSON.parse(localStorage.getItem("requie3-show")||"null");if(s&&C.scenes[s.scene])show=Object.assign(show,s);}catch(e){}
-function pushShow(){try{localStorage.setItem("requie3-show",JSON.stringify(show));}catch(e){}ch.postMessage({type:"show",show});renderAll();}
+function pushShow(){try{localStorage.setItem("requie3-show",JSON.stringify(show));}catch(e){}ch.postMessage({type:"show",show,build:BUILD});renderAll();}
 const sc=()=>C.scenes[show.scene]||{};
 function goScene(i,force){if(i<0||i>=C.scenes.length)return;if(i===show.scene&&!force)return;
   show.scene=i;show.nonce++;const s=C.scenes[i];
@@ -156,14 +157,17 @@ ch.onmessage=({data:m})=>{
   else if(m.type==="status"){lastSeen=Date.now();mon=m;
     $("monText").textContent=m.started?`接続中　いま：${m.label||""}${m.paused?"（一時停止中）":""}`:"接続中（モニター画面をクリックしてください）";
     $("nowLabel").textContent=m.started?`モニター：${m.label||""}`:"";markNow();
+    const w=$("warn");if(m.build!==BUILD){w.hidden=false;w.textContent="モニター画面が古い版のままです。モニター画面のウィンドウを閉じて、もう一度「モニター画面を開く」を押してください。";}
+    else if(!m.started){w.hidden=false;w.textContent="モニター画面がまだ待機中です。モニター側の画面を一度クリックしてください（クリックするまで操作が反映されません）。";}
+    else w.hidden=true;
     if(m.media){const d=m.media;$("mediaInfo").innerHTML=d.done<d.total?`素材を読み込み中… ${d.done} / ${d.total}`:d.failed.length?`<span style="color:#e08a5a">読み込めなかった素材：${esc(d.failed.join("、"))}</span>`:`<span style="color:#6fcf7a">● 素材 ${d.total} 件の準備完了（ネットがなくても上映できます）</span>`;}}
   else if(m.type==="sceneDone"){if(m.scene===show.scene)goScene(show.scene+1);}
   else if(m.type==="toast")toast(m.msg);
-  else if(m.type==="hello-monitor"){ch.postMessage({type:"show",show});if(story)ch.postMessage({type:"story",...story});}
+  else if(m.type==="hello-monitor"){ch.postMessage({type:"show",show,build:BUILD});if(story)ch.postMessage({type:"story",...story});}
 };
-setInterval(()=>{const on=Date.now()-lastSeen<2500;$("monDot").classList.toggle("on",on);if(!on){$("monText").textContent="未接続（「モニター画面を開く」を押してください）";$("nowLabel").textContent="";}},1000);
+setInterval(()=>{const on=Date.now()-lastSeen<2500;$("monDot").classList.toggle("on",on);if(!on){$("warn").hidden=true;$("monText").textContent="未接続（「モニター画面を開く」を押してください）";$("nowLabel").textContent="";}},1000);
 try{const s=JSON.parse(localStorage.getItem("requie3-story")||"null");if(s){story=s;renderStory();}}catch(e){}
-renderAll();ch.postMessage({type:"hello"});ch.postMessage({type:"show",show});
+renderAll();ch.postMessage({type:"hello"});ch.postMessage({type:"show",show,build:BUILD});
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
