@@ -32,7 +32,7 @@ kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;
 <section>
 <h2>モニター画面</h2>
 <div class="row"><button class="main" id="openMonitor">モニター画面を開く</button><div class="status"><span class="dot" id="monDot"></span><span id="monText">未接続</span></div></div>
-<p class="story">開いたウィンドウをモニターへドラッグし、モニター側の画面を一度クリックすると全画面になります。</p>
+<p class="story" id="mediaInfo"></p><p class="story">開いたウィンドウをモニターへドラッグし、モニター側の画面を一度クリックすると全画面になります。</p>
 </section>
 
 <section>
@@ -76,13 +76,15 @@ function markNow(){document.querySelectorAll("#storyInfo li").forEach(li=>li.cla
 ch.onmessage=({data:m})=>{
   if(m.type==="story"){story=m;renderStory();toast("エンディングを受信しました");}
   else if(m.type==="status"){lastSeen=Date.now();mon=m;nowIdx=m.si;nowMode=m.mode;
-    $("monText").textContent=`接続中　${({standby:"準備中（モニター画面をクリックしてください）",idle:"待機映像",op:"OP",black:"暗転",ending:"エンディング上映中",closing:"締めのメッセージ"})[m.mode]||m.mode}${m.paused?"（一時停止中）":""}${m.waiting?"：ルカの選択待ち":""}`;markNow();}
+    $("monText").textContent=`接続中　${({standby:"準備中（モニター画面をクリックしてください）",idle:"待機映像",op:"OP",black:"暗転",ending:"エンディング上映中",closing:"締めのメッセージ"})[m.mode]||m.mode}${m.paused?"（一時停止中）":""}${m.waiting?"：ルカの選択待ち":""}`;markNow();if(m.media){const d=m.media;$("mediaInfo").innerHTML=d.done<d.total?`素材を読み込み中… ${d.done} / ${d.total}`:d.failed.length?`<span style="color:#e08a5a">読み込めなかった素材：${esc(d.failed.join("、"))}</span>`:`<span style="color:#6fcf7a">● 素材 ${d.total} 件の準備完了（ネットがなくても上映できます）</span>`;}}
   else if(m.type==="toast")toast(m.msg);
   else if(m.type==="hello-monitor"){if(story)ch.postMessage({type:"story",...story});}
 };
 setInterval(()=>{const on=Date.now()-lastSeen<2500;$("monDot").classList.toggle("on",on);if(!on)$("monText").textContent="未接続（「モニター画面を開く」を押してください）";},1000);
 try{const s=JSON.parse(localStorage.getItem("requie3-story")||"null");if(s){story=s;renderStory();}}catch(e){}
 ch.postMessage({type:"hello"});
+
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
 </html>
