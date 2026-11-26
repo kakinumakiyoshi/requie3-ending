@@ -16,6 +16,9 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 #bgImg{background:#000 center/cover no-repeat;animation:drift 60s ease-in-out infinite alternate;filter:brightness(.72)}
 @keyframes drift{from{transform:scale(1.04) translate(0,0)}to{transform:scale(1.14) translate(-2%,-1%)}}
 #timerLayer{display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(80% 70% at 50% 55%,rgba(0,0,0,.45),rgba(0,0,0,.15) 70%,transparent)}
+#tPhase,#ttPhase{font:600 clamp(11px,1.1vw,20px) system-ui;letter-spacing:.5em;color:#c9a24f;text-shadow:0 2px 10px #000;margin-bottom:.8em;min-height:1em}
+#titleLayer{display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(70% 60% at 50% 50%,rgba(0,0,0,.5),transparent)}
+#ttTitle{font-size:clamp(40px,6vw,120px);letter-spacing:.25em;color:#f3e3c0;text-shadow:0 4px 30px #000}
 #tTitle{font-size:clamp(18px,2.2vw,40px);letter-spacing:.4em;color:#e7d3a6;text-shadow:0 2px 16px #000;margin-bottom:.3em}
 #tClock{font:300 clamp(80px,15vw,280px)/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.04em;font-variant-numeric:tabular-nums;text-shadow:0 6px 40px rgba(0,0,0,.8);transition:color .6s}
 #tClock.warn{color:#ff8a6a}
@@ -62,7 +65,8 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 <div class="layer hide" id="bgImg"></div>
 <div class="layer hide" id="bgLayer"><video id="bgVideo" muted playsinline loop></video></div>
 <div class="layer hide serif" id="castLayer"><div id="castAll"><h2>CAST</h2><div id="castGrid"></div></div></div>
-<div class="layer hide serif" id="timerLayer"><div id="tTitle"></div><div id="tClock">15:00</div><div id="tNote"></div></div>
+<div class="layer hide serif" id="titleLayer"><div id="ttPhase"></div><div id="ttTitle"></div></div>
+<div class="layer hide serif" id="timerLayer"><div id="tPhase"></div><div id="tTitle"></div><div id="tClock">15:00</div><div id="tNote"></div></div>
 <div class="layer hide" id="endWait"><img alt="" id="endWaitImg"></div>
 <div class="layer hide serif" id="textLayer"><div id="text"></div></div>
 <div class="layer hide" id="fxLayer"><video id="fxVideo" playsinline></video></div>
@@ -73,7 +77,7 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 <div class="layer" id="start"><b>REQUIEⅢ　モニター画面</b><span>このウィンドウをモニターに移動してから、<br>画面をクリックしてください（全画面になり、音が出せるようになります）。</span><span id="mediaState" style="color:#efe6d4">素材を確認中…</span></div>
 
 <script>
-const BUILD="2026-11-25-3";
+const BUILD="2026-11-27-1";
 const C=window.THEATER_CONFIG;const $=id=>document.getElementById(id);
 const ch=new BroadcastChannel("requie3-theater");
 let story=null;
@@ -115,7 +119,7 @@ function duck(on){bgmLevel=on?0.25:1;fadeTo(bgmLevel,800);}
 function playSfx(key){const s=C.sounds&&C.sounds[key];if(!s)return;sfx.src=U(s);sfx.volume=volume;sfx.currentTime=0;sfx.play().catch(()=>{});}
 
 // ---------- 画面 ----------
-const LAYERS=["bgImg","bgLayer","castLayer","timerLayer","endWait","textLayer","fxLayer","closing","black"];
+const LAYERS=["titleLayer","bgImg","bgLayer","castLayer","timerLayer","endWait","textLayer","fxLayer","closing","black"];
 function only(...ids){LAYERS.forEach(id=>$(id).classList.toggle("hide",!ids.includes(id)));}
 function show1(id,on){$(id).classList.toggle("hide",!on);}
 function setBackground(key){
@@ -138,8 +142,9 @@ function stopAll(){run++;st.paused=false;st.waiting=false;$("fxVideo").pause();s
 function enterScene(i){
   const sc=C.scenes[i];if(!sc)return;stopAll();const r=run;st.scene=i;st.mode=sc.type;st.label=sc.title||sc.type;
   $("text").innerHTML="";timerUpFor=null;
-  if(sc.type==="loop"){only(setBackground(sc.bg));setBgm(sc.bgm||"");}
-  else if(sc.type==="timer"){only(setBackground(sc.bg),"timerLayer");$("tTitle").textContent=sc.title||"";setBgm(sc.bgm||"");renderTimer();}
+  st.label=(sc.phase?sc.phase+"｜":"")+(sc.title||sc.type);
+  if(sc.type==="loop"){$("ttPhase").textContent=sc.phase||"";$("ttTitle").textContent=sc.title||"";only(setBackground(sc.bg),...(sc.showTitle?["titleLayer"]:[]));setBgm(sc.bgm||"");}
+  else if(sc.type==="timer"){only(setBackground(sc.bg),"timerLayer");$("tPhase").textContent=sc.phase||"";$("tTitle").textContent=sc.title||"";setBgm(sc.bgm||"");renderTimer();}
   else if(sc.type==="cast"){only("castLayer");setBgm(sc.bgm||"");castReveal(r);}
   else if(sc.type==="video"){only("black");setBgm("",true);(async()=>{try{await sleep(700,r);await playVideo(sc.video,r);if(sc.autoNext)send("sceneDone",{scene:i});}catch(e){}})();}
   else if(sc.type==="ending"){only("endWait");setBgm(sc.bgm||"");}

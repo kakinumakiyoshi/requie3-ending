@@ -20,8 +20,8 @@ button:hover{border-color:var(--gold)}button.main{background:var(--gold);color:#
 button:disabled{opacity:.35;cursor:default}button.on{background:#5a2a1e;border-color:#e08a5a}
 .status{display:flex;gap:10px;align-items:center;font-size:14px}.dot{width:10px;height:10px;border-radius:50%;background:#6b5d4f;flex:none}.dot.on{background:#6fcf7a;box-shadow:0 0 8px #6fcf7a}
 .note{font-size:13px;color:var(--mute);margin:10px 0 0;line-height:1.8}
-#scenes{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}
-#scenes button{width:100%;text-align:left;display:flex;gap:10px;align-items:center}
+#scenes{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:4px;max-height:520px;overflow:auto}
+#scenes button{width:100%;text-align:left;display:flex;gap:10px;align-items:center;padding:7px 12px}
 #scenes button .n{color:var(--mute);font-size:12px;width:1.6em}
 #scenes button small{margin-left:auto;color:var(--mute)}
 #scenes button.now{border-color:var(--gold);background:#3a2e1f;color:#fff}
@@ -86,7 +86,7 @@ kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;
 </main>
 <div class="toast" id="toast"></div>
 <script>
-const BUILD="2026-11-25-3";
+const BUILD="2026-11-27-1";
 const C=window.THEATER_CONFIG;const ch=new BroadcastChannel("requie3-theater");const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let story=null,lastSeen=0,mon=null;
@@ -102,7 +102,7 @@ function goScene(i,force){if(i<0||i>=C.scenes.length)return;if(i===show.scene&&!
   show.scene=i;show.nonce++;const s=C.scenes[i];
   show.timer=s.type==="timer"?{total:(s.minutes||10)*60000,remaining:(s.minutes||10)*60000,endAt:null,started:false}:null;pushShow();}
 
-$("scenes").innerHTML=C.scenes.map((s,i)=>`<li><button data-i="${i}"><span class="n">${i+1}</span>${esc(s.title||s.type)}<small>${s.type==="timer"?(s.minutes||10)+"分":({loop:"背景",cast:"配役",video:"映像",ending:"エンディング"})[s.type]||""}</small></button></li>`).join("");
+$("scenes").innerHTML=C.scenes.map((s,i)=>`<li><button data-i="${i}"><span class="n">${i+1}</span>${s.phase?`<span style="color:var(--mute);font-size:12px">${esc(s.phase)}</span>`:""}${esc(s.title||s.type)}<small>${s.type==="timer"?(s.minutes||10)+"分":({loop:"背景",cast:"配役",video:"映像",ending:"エンディング"})[s.type]||""}</small></button></li>`).join("");
 $("scenes").onclick=e=>{const b=e.target.closest("button");if(b)goScene(+b.dataset.i);};
 $("prevScene").onclick=()=>goScene(show.scene-1);$("nextScene").onclick=()=>goScene(show.scene+1);
 $("blackout").onclick=()=>{show.blackout=!show.blackout;pushShow();};
@@ -118,7 +118,7 @@ function renderClock(){const t=show.timer;const on=!!t;["tStart","tPlus","tMinus
   const s=Math.ceil(rem()/1000);$("clock").textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
   $("clock").className=t.started&&s<=0?"up":t.started&&s<=60?"warn":"";
   $("tStart").textContent=t.endAt?"一時停止":(t.started?"再開":"スタート");
-  $("tInfo").textContent=`${sc().title}：${Math.round(t.total/60000)}分　${t.endAt?"進行中":t.started?(s<=0?"時間切れ":"一時停止中"):"開始前（モニターには「まもなく開始」と出ます）"}`;}
+  $("tInfo").textContent=`${sc().phase?sc().phase+"｜":""}${sc().title}：${Math.round(t.total/60000)}分　${t.endAt?"進行中":t.started?(s<=0?"時間切れ":"一時停止中"):"開始前（モニターには「まもなく開始」と出ます）"}`;}
 setInterval(renderClock,250);
 
 // ===== 配役 =====

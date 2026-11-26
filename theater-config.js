@@ -62,13 +62,32 @@ window.THEATER_CONFIG = {
   //         "video"  … 映像を1本流す（autoNext: true なら終わったら自動で次へ）
   //         "timer"  … 背景＋タイマー（minutes で時間）
   //         "ending" … エンディング（判定結果に合わせて上映）
+  //   phase: フェーズ名（タイマーの上に小さく出ます） / showTitle: true で背景の上にシーン名を大きく出す
   scenes: [
-    { type: "loop",   title: "開場・待機",   bg: "idle", bgm: "idle" },
-    { type: "cast",   title: "配役発表",     bgm: "idle" },
-    { type: "video",  title: "オープニング", video: "op", autoNext: true },
-    { type: "timer",  title: "読み込み時間", minutes: 15, bg: "town", bgm: "idle" },
-    { type: "timer",  title: "調査フェーズ", minutes: 20, bg: "town", bgm: "idle" },
-    { type: "timer",  title: "議論フェーズ", minutes: 20, bg: "town", bgm: "idle" },
+    { type: "loop",   title: "開場・待機", bg: "idle", bgm: "idle" },
+    // 1. オープニング
+    { type: "video",  phase: "オープニング", title: "潜入", video: "op", autoNext: true },
+    // 2. キャラクター選択・読み込み
+    { type: "cast",   phase: "キャラクター選択", title: "配役発表", bgm: "idle" },
+    { type: "timer",  phase: "キャラクター選択", title: "読み込み", minutes: 15, bg: "town", bgm: "idle" },
+    // 3. ルール説明
+    { type: "loop",   title: "ルール説明", bg: "town", bgm: "idle", showTitle: true },
+    // 4. 第1フェーズ
+    { type: "loop",   phase: "第1フェーズ", title: "イベント", bg: "town", bgm: "idle", showTitle: true },
+    { type: "timer",  phase: "第1フェーズ", title: "捜査", minutes: 5,  bg: "town", bgm: "idle" },
+    { type: "timer",  phase: "第1フェーズ", title: "議論", minutes: 20, bg: "town", bgm: "idle" },
+    { type: "timer",  phase: "第1フェーズ", title: "告解", minutes: 5,  bg: "town", bgm: "idle" },
+    // 5. 第2フェーズ
+    { type: "loop",   phase: "第2フェーズ", title: "イベント", bg: "town", bgm: "idle", showTitle: true },
+    { type: "timer",  phase: "第2フェーズ", title: "捜査", minutes: 5,  bg: "town", bgm: "idle" },
+    { type: "timer",  phase: "第2フェーズ", title: "議論", minutes: 20, bg: "town", bgm: "idle" },
+    { type: "timer",  phase: "第2フェーズ", title: "告解", minutes: 5,  bg: "town", bgm: "idle" },
+    // 6. 第3フェーズ
+    { type: "timer",  phase: "第3フェーズ", title: "イベント・休憩", minutes: 10, bg: "town", bgm: "idle" },
+    { type: "timer",  phase: "第3フェーズ", title: "調査＆最終議論", minutes: 30, bg: "town", bgm: "idle" },
+    // 7. クライマックスフェーズ
+    { type: "loop",   title: "クライマックスフェーズ", bg: "town", bgm: "idle", showTitle: true },
+    // 8. エンディング
     { type: "ending", title: "エンディング" }
   ],
 
