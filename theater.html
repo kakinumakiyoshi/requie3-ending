@@ -14,16 +14,32 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 .serif{font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Noto Serif CJK JP",serif}
 #bgVideo{filter:brightness(.6)}
 #bgImg{background:#000 center/cover no-repeat;animation:drift 60s ease-in-out infinite alternate;filter:brightness(.72)}
+#bgImg.still{animation:none;filter:brightness(var(--stillBright,1));transform:none}
+#bgLayer.still video{filter:brightness(var(--stillBright,1))}
+#ovImg{background:center/contain no-repeat}
+/* タイマーの位置：右下（調査の間取り）／上（第3フェーズ） */
+#timerLayer.pos-right{align-items:flex-end;justify-content:flex-end;padding:0 4.5vw 6vh 0;background:none;text-align:right}
+#timerLayer.pos-right #tClock{font-size:clamp(70px,10vw,200px)}
+#timerLayer.pos-top{justify-content:flex-start;padding-top:3vh;background:linear-gradient(rgba(0,0,0,.55),transparent 45%)}
+#timerLayer.pos-top #tClock{font-size:clamp(60px,9vw,180px)}
 @keyframes drift{from{transform:scale(1.04) translate(0,0)}to{transform:scale(1.14) translate(-2%,-1%)}}
 #timerLayer{display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(80% 70% at 50% 55%,rgba(0,0,0,.45),rgba(0,0,0,.15) 70%,transparent)}
-#tPhase,#ttPhase{font:600 clamp(11px,1.1vw,20px) system-ui;letter-spacing:.5em;color:#c9a24f;text-shadow:0 2px 10px #000;margin-bottom:.8em;min-height:1em}
+#tPhase,#ttPhase{font:400 clamp(13px,1.45vw,28px) "Bodoni 72","Didot",serif;letter-spacing:.55em;color:#c9a24f;text-shadow:0 2px 10px #000;margin-bottom:.6em;min-height:1em;padding-left:.55em}
 #titleLayer{display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(70% 60% at 50% 50%,rgba(0,0,0,.5),transparent)}
 #ttTitle{font-size:clamp(40px,6vw,120px);letter-spacing:.25em;color:#f3e3c0;text-shadow:0 4px 30px #000}
-#tTitle{font-size:clamp(18px,2.2vw,40px);letter-spacing:.4em;color:#e7d3a6;text-shadow:0 2px 16px #000;margin-bottom:.3em}
-#tClock{font:300 clamp(80px,15vw,280px)/1 "Helvetica Neue",Arial,sans-serif;letter-spacing:.04em;font-variant-numeric:tabular-nums;text-shadow:0 6px 40px rgba(0,0,0,.8);transition:color .6s}
+#tTitle{font-size:clamp(20px,2.3vw,44px);letter-spacing:.5em;padding-left:.5em;color:#e2d8c4;text-shadow:0 2px 16px #000;margin:.2em 0 .3em}
+#tClock{font:400 clamp(90px,15.5vw,300px)/1 "Didot","Bodoni 72",serif;letter-spacing:.02em;color:#e2d8c4;text-shadow:0 0 40px rgba(226,216,196,.25),0 6px 40px rgba(0,0,0,.8);transition:color .6s}
+#tBar{width:min(32vw,620px);height:1px;background:rgba(201,162,79,.45);margin:.9em auto .6em;position:relative}
+#tBar i{position:absolute;left:0;top:-1px;height:3px;background:#c9a24f;width:100%;transition:width .3s linear}
+#tLeft{display:none;font:400 clamp(11px,1.1vw,20px) Menlo,monospace;letter-spacing:.15em;color:#9fb7bb}
+/* 並び順：真ん中＝PHASE／数字／ゲージ／場面名、右下＝PHASE／場面名／ゲージ／TIME LEFT／数字、上＝PHASE／数字／ゲージ／場面名 */
+#timerLayer{text-align:center}
+#tPhase{order:0}#tClock{order:1}#tBar{order:2}#tTitle{order:3}#tNote{order:4}
+#timerLayer.pos-right #tTitle{order:1;font-size:clamp(22px,2.6vw,50px)}#timerLayer.pos-right #tBar{order:2;margin:1.4em 0 .5em auto;width:min(26vw,520px)}#timerLayer.pos-right #tLeft{display:block;order:3}#timerLayer.pos-right #tClock{order:4;font-family:Menlo,monospace;font-weight:400;letter-spacing:.02em}#timerLayer.pos-right #tNote{order:5}
+#timerLayer.pos-right #tBar i{left:auto;right:0}
 #tClock.warn{color:#ff8a6a}
 #tClock.up{color:#ff5a3a;animation:pulse 1s ease-in-out infinite}
-#tNote{margin-top:.6em;font-size:clamp(14px,1.4vw,26px);letter-spacing:.3em;color:#e7d3a6;min-height:1.4em;text-shadow:0 2px 10px #000}
+#tNote{margin-top:.4em;font-size:clamp(13px,1.2vw,22px);letter-spacing:.4em;color:#c9a24f;min-height:1.4em;text-shadow:0 2px 10px #000}
 #tPaused{position:fixed;right:3vw;top:3vh;font:600 14px system-ui;letter-spacing:.3em;color:#e7d3a6;opacity:.7}
 @keyframes pulse{50%{opacity:.35}}
 #castLayer{background:radial-gradient(100% 80% at 50% 40%,#2a1c15,#070504)}
@@ -42,6 +58,8 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 #castGrid b{display:block;margin-top:.6em;font-size:clamp(16px,1.7vw,32px);letter-spacing:.1em;color:#f3e3c0;font-weight:400}
 #castGrid span{display:block;font-size:clamp(12px,1.2vw,22px);color:#c9a24f;letter-spacing:.1em}
 #textLayer{display:flex;align-items:center;justify-content:center;background:radial-gradient(120% 90% at 50% 45%,rgba(30,20,14,.55),rgba(0,0,0,.92))}
+#endBgA,#endBgB{transition:opacity 1.6s ease}
+#textLayer.onvid{background:radial-gradient(120% 90% at 50% 50%,rgba(0,0,0,.46),rgba(0,0,0,.78))}
 #text{width:min(78vw,1400px);font-size:clamp(20px,2.35vw,44px);line-height:2;letter-spacing:.06em;text-shadow:0 2px 14px #000}
 #text p{margin:0 0 .7em;transition:opacity 1.4s ease,filter 1.4s ease}
 #text p.old{opacity:.5}
@@ -64,10 +82,13 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 <body class="setup">
 <div class="layer hide" id="bgImg"></div>
 <div class="layer hide" id="bgLayer"><video id="bgVideo" muted playsinline loop></video></div>
+<div class="layer hide" id="ovImg"></div>
 <div class="layer hide serif" id="castLayer"><div id="castAll"><h2>CAST</h2><div id="castGrid"></div></div></div>
 <div class="layer hide serif" id="titleLayer"><div id="ttPhase"></div><div id="ttTitle"></div></div>
-<div class="layer hide serif" id="timerLayer"><div id="tPhase"></div><div id="tTitle"></div><div id="tClock">15:00</div><div id="tNote"></div></div>
+<div class="layer hide serif" id="timerLayer"><div id="tPhase"></div><div id="tTitle"></div><div id="tBar"><i></i></div><div id="tLeft">TIME LEFT</div><div id="tClock">15:00</div><div id="tNote"></div></div>
 <div class="layer hide" id="endWait"><img alt="" id="endWaitImg"></div>
+<div class="layer hide" id="endBgA"><video id="endVidA" playsinline></video></div>
+<div class="layer hide" id="endBgB"><video id="endVidB" playsinline></video></div>
 <div class="layer hide serif" id="textLayer"><div id="text"></div></div>
 <div class="layer hide" id="fxLayer"><video id="fxVideo" playsinline></video></div>
 <div class="layer hide serif" id="closing"></div>
@@ -77,7 +98,7 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 <div class="layer" id="start"><b>REQUIEⅢ　モニター画面</b><span>このウィンドウをモニターに移動してから、<br>画面をクリックしてください（全画面になり、音が出せるようになります）。</span><span id="mediaState" style="color:#efe6d4">素材を確認中…</span></div>
 
 <script>
-const BUILD="2026-11-27-1";
+const BUILD="2026-11-27-9";
 const C=window.THEATER_CONFIG;const $=id=>document.getElementById(id);
 const ch=new BroadcastChannel("requie3-theater");
 let story=null;
@@ -119,7 +140,7 @@ function duck(on){bgmLevel=on?0.25:1;fadeTo(bgmLevel,800);}
 function playSfx(key){const s=C.sounds&&C.sounds[key];if(!s)return;sfx.src=U(s);sfx.volume=volume;sfx.currentTime=0;sfx.play().catch(()=>{});}
 
 // ---------- 画面 ----------
-const LAYERS=["titleLayer","bgImg","bgLayer","castLayer","timerLayer","endWait","textLayer","fxLayer","closing","black"];
+const LAYERS=["titleLayer","bgImg","bgLayer","ovImg","castLayer","timerLayer","endWait","endBgA","endBgB","textLayer","fxLayer","closing","black"];
 function only(...ids){LAYERS.forEach(id=>$(id).classList.toggle("hide",!ids.includes(id)));}
 function show1(id,on){$(id).classList.toggle("hide",!on);}
 function setBackground(key){
@@ -131,20 +152,47 @@ const sleep=(ms,r)=>new Promise((res,rej)=>{let acc=0,last=performance.now();(fu
 const waitResume=r=>new Promise((res,rej)=>{(function tick(){if(r!==run)return rej("stop");if(!st.paused)return res();setTimeout(tick,100);})();});
 
 function playVideo(key,r){return new Promise((res,rej)=>{const v=$("fxVideo"),src=C.videos[key];if(!src)return res();
-  v.dataset.src=src;v.src=U(src);v.currentTime=0;v.volume=volume;show1("fxLayer",true);duck(true);v.play().catch(()=>{});
+  v.dataset.src=src;v.src=U(src);v.muted=false;v.currentTime=0;v.volume=volume;show1("fxLayer",true);show1("black",false);duck(true);   // 黒い幕（#black）は映像より上に重なるので外す
+  // 流せなかったときは理由をコントロールに出す。音ありの自動再生を止められたら、音なしで流す
+  const why=m=>send("toast",{msg:`映像「${key}」：${m}`});
+  v.play().catch(e=>{why(`再生できませんでした（${e.name}）。音なしで流します`);v.muted=true;v.play().catch(e2=>why(`音なしでも再生できませんでした（${e2.name}）`));});
   const end=()=>{v.onended=null;v.onerror=null;show1("fxLayer",false);duck(false);clearInterval(chk);setTimeout(res,900);};
-  v.onended=end;v.onerror=end;let t0=Date.now();const chk=setInterval(()=>{if(!st.paused&&v.currentTime===0&&Date.now()-t0>4000){end();return;}if(st.paused)t0=Date.now();if(r!==run){clearInterval(chk);v.pause();show1("fxLayer",false);duck(false);rej("stop");}else if(st.paused&&!v.paused)v.pause();else if(!st.paused&&v.paused&&!v.ended)v.play().catch(()=>{});},200);
+  v.onended=end;v.onerror=()=>{why(`読み込めませんでした（エラー ${v.error&&v.error.code}）`);end();};let t0=Date.now();const chk=setInterval(()=>{if(!st.paused&&v.currentTime===0&&Date.now()-t0>4000){why("4秒たっても始まらないので飛ばしました");end();return;}if(st.paused)t0=Date.now();if(r!==run){clearInterval(chk);v.pause();show1("fxLayer",false);duck(false);rej("stop");}else if(st.paused&&!v.paused)v.pause();else if(!st.paused&&v.paused&&!v.ended)v.play().catch(()=>{});},200);
 });}
 
-function stopAll(){run++;st.paused=false;st.waiting=false;$("fxVideo").pause();show1("fxLayer",false);duck(false);$("tPaused").hidden=true;}
+// ---------- エンディングの背景映像：文字は止めずに後ろで流す。終わったら最後のコマで止めて背景として残す ----------
+const endBg={queue:[],cur:null,slot:"A",base:null,watch:null};
+function endBgPlayNext(){
+  const key=endBg.queue.shift();if(!key){endBg.cur=null;duck(false);return;}
+  const src=C.videos[key];if(!src){endBgPlayNext();return;}
+  const next=endBg.slot==="A"?"B":"A";const v=$("endVid"+next),old=$("endBg"+endBg.slot);
+  v.onended=null;v.src=U(src);v.currentTime=0;v.volume=volume;v.loop=false;
+  v.onended=()=>{v.onended=null;endBgPlayNext();};v.onerror=()=>{v.onerror=null;endBgPlayNext();};
+  v.play().catch(()=>{});show1("endBg"+next,true);if(old!==$("endBg"+next))show1("endBg"+endBg.slot,false);
+  endBg.slot=next;endBg.cur=key;duck(true);$("textLayer").classList.add("onvid");}
+function endBgQueue(key){endBg.queue.push(key);if(!endBg.cur)endBgPlayNext();}
+function endBgClear(){endBg.queue=[];endBg.cur=null;["A","B"].forEach(k=>{show1("endBg"+k,false);const v=$("endVid"+k);v.onended=null;setTimeout(()=>{if(!endBg.cur)v.pause();},1700);});$("textLayer").classList.remove("onvid");duck(false);}
+// 一時停止に合わせて背景映像も止める
+setInterval(()=>{if(!endBg.cur)return;const v=$("endVid"+endBg.slot);if(st.paused&&!v.paused)v.pause();else if(!st.paused&&v.paused&&!v.ended)v.play().catch(()=>{});},200);
+
+function stopAll(){run++;st.paused=false;st.waiting=false;$("fxVideo").pause();show1("fxLayer",false);endBgClear();duck(false);$("tPaused").hidden=true;}
 
 // ---------- 進行表のシーン ----------
+// 作った背景の明るさ（theater-config.js の stillBrightness）
+document.documentElement.style.setProperty("--stillBright",String(C.stillBrightness||1));
+function phaseLabel(p){const m={"第1フェーズ":"PHASE  I","第2フェーズ":"PHASE  II","第3フェーズ":"PHASE  III","キャラクター選択":"CHARACTER","オープニング":"OPENING"};return m[p]||p||"";}
+function sceneLook(sc){
+  $("bgImg").classList.toggle("still",!!sc.still);$("bgLayer").classList.toggle("still",!!sc.still);
+  const ov=sc.overlay&&C.images&&C.images[sc.overlay];if(ov)$("ovImg").style.backgroundImage=`url("${U(ov)}")`;
+  $("timerLayer").classList.toggle("pos-right",sc.timerPos==="right");$("timerLayer").classList.toggle("pos-top",sc.timerPos==="top");
+  return ov?["ovImg"]:[];}
 function enterScene(i){
   const sc=C.scenes[i];if(!sc)return;stopAll();const r=run;st.scene=i;st.mode=sc.type;st.label=sc.title||sc.type;
   $("text").innerHTML="";timerUpFor=null;
   st.label=(sc.phase?sc.phase+"｜":"")+(sc.title||sc.type);
-  if(sc.type==="loop"){$("ttPhase").textContent=sc.phase||"";$("ttTitle").textContent=sc.title||"";only(setBackground(sc.bg),...(sc.showTitle?["titleLayer"]:[]));setBgm(sc.bgm||"");}
-  else if(sc.type==="timer"){only(setBackground(sc.bg),"timerLayer");$("tPhase").textContent=sc.phase||"";$("tTitle").textContent=sc.title||"";setBgm(sc.bgm||"");renderTimer();}
+  const extra=sceneLook(sc);
+  if(sc.type==="loop"){$("ttPhase").textContent=phaseLabel(sc.phase);$("ttTitle").textContent=sc.title||"";only(setBackground(sc.bg),...extra,...(sc.showTitle?["titleLayer"]:[]));setBgm(sc.bgm||"");}
+  else if(sc.type==="timer"){only(setBackground(sc.bg),...extra,"timerLayer");$("tPhase").textContent=phaseLabel(sc.phase);$("tTitle").textContent=sc.title||"";setBgm(sc.bgm||"");renderTimer();}
   else if(sc.type==="cast"){only("castLayer");setBgm(sc.bgm||"");castReveal(r);}
   else if(sc.type==="video"){only("black");setBgm("",true);(async()=>{try{await sleep(700,r);await playVideo(sc.video,r);if(sc.autoNext)send("sceneDone",{scene:i});}catch(e){}})();}
   else if(sc.type==="ending"){only("endWait");setBgm(sc.bgm||"");}
@@ -175,6 +223,7 @@ function renderTimer(){
   const sc=C.scenes[st.scene];if(!sc||sc.type!=="timer")return;
   const t=show&&show.timer;const ms=remaining();const s=Math.ceil(ms/1000);
   $("tClock").textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+  $("tBar").firstElementChild.style.width=(t&&t.total?Math.max(0,Math.min(1,ms/t.total))*100:100)+"%";
   const up=!!t&&t.started&&ms<=0;$("tClock").classList.toggle("up",up);$("tClock").classList.toggle("warn",!up&&!!t&&t.started&&s<=60);
   $("tNote").textContent=up?"時間です":(t&&!t.started?"まもなく開始":"");
   $("tPaused").hidden=!(t&&t.started&&!t.endAt&&ms>0);
@@ -224,7 +273,7 @@ async function clearText(r){[...$("text").children].forEach(x=>x.classList.add("
 
 async function playEnding(){
   if(!story){send("toast",{msg:"エンディングがまだ届いていません。エンディングアプリで判定してください。"});return;}
-  stopAll();const r=run;st.mode="ending";st.si=0;st.pi=0;
+  stopAll();const r=run;st.mode="ending";st.si=0;st.pi=0;endBg.base=null;
   only("black");setBgm("",true);$("text").innerHTML="";
   try{
     await sleep(1500,r);only("textLayer");
@@ -234,15 +283,18 @@ async function playEnding(){
       st.waiting=false;const ps=paras(seg);if(!ps.length)continue;
       st.label=seg.id;status();setBgm(bgmFor(seg));
       const cues=cuesFor(seg);skipSeg=false;
-      for(const c of cues.filter(c=>c.at==="start")){await clearText(r);await playVideo(c.video,r);}
+      // 章が変わったら背景を消す（「（その後）」は同じ場面の続きなので残す）
+      const base=seg.id.replace(/（その後）$/,"");if(endBg.base!==null&&base!==endBg.base)endBgClear();endBg.base=base;
+      for(const c of cues.filter(c=>c.at==="start"))endBgQueue(c.video);
       for(st.pi=0;st.pi<ps.length&&!skipSeg;st.pi++){
+        for(const c of cues.filter(c=>c.at!=="start"&&c.at!=="end"&&ps[st.pi].includes(c.at)))endBgQueue(c.video);   // この段落が出始めたら流す
         status();for(const blk of splitBlocks(ps[st.pi])){if(skipSeg)break;await typePara(blk.t,r,blk.line);}
         if(st.pi<ps.length-1&&!skipSeg){await sleep(500,r);await clearText(r);await sleep(500,r);}   // 段落の切れ目：いったん消して間をあける
-        for(const c of cues.filter(c=>c.at!=="start"&&c.at!=="end"&&ps[st.pi].includes(c.at))){await clearText(r);await playVideo(c.video,r);}
       }
-      for(const c of cues.filter(c=>c.at==="end")){await clearText(r);await playVideo(c.video,r);}
+      for(const c of cues.filter(c=>c.at==="end"))endBgQueue(c.video);
       await clearText(r);await sleep(700,r);
     }
+    endBgClear();endBg.base=null;
     st.label="締めのメッセージ";status();
     $("closing").innerHTML=`<img src="${U("media/cover-title.jpg")}" alt="">`+story.closing.split("\n").map(l=>`<div>${esc(l)}</div>`).join("");
     only("closing");setBgm("epilogue");st.mode="closing";status();
@@ -259,7 +311,7 @@ function applyShow(s){
 }
 ch.onmessage=({data:m})=>{
   if(m.type==="story"){story={segs:m.segs,closing:m.closing,stamp:m.stamp};status();}
-  else if(m.type==="show"){if(m.build&&m.build!==BUILD){if(!sessionStorage.getItem("requie3-reloaded-"+m.build)){sessionStorage.setItem("requie3-reloaded-"+m.build,"1");location.reload();}return;}applyShow(m.show);}
+  else if(m.type==="show"){if(m.build&&m.build!==BUILD){if(!sessionStorage.getItem("requie3-reloaded-"+m.build)){sessionStorage.setItem("requie3-reloaded-"+m.build,"1");location.replace("theater.html?v="+Date.now());}return;}applyShow(m.show);}
   else if(m.type==="cmd"){({play:playEnding,
      pause:()=>{st.paused=!st.paused;status();},
      nextPara:()=>{skipPara=true;},nextSeg:()=>{skipSeg=true;skipPara=true;},
@@ -273,7 +325,7 @@ $("start").onclick=()=>{document.documentElement.requestFullscreen?.().catch(()=
   let saved=null;try{saved=JSON.parse(localStorage.getItem("requie3-show")||"null");}catch(e){}
   const s=show||saved||{scene:0,nonce:0,names:{},timer:null};show=null;applyShow(s);send("hello-monitor");};
 send("hello-monitor");
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker" in navigator&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname))navigator.serviceWorker.register("sw.js").catch(()=>{});
 preload();
 </script>
 </body>

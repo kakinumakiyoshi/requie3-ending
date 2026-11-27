@@ -1,10 +1,10 @@
 // オフライン用：一度開いたアプリ本体と映像・BGMをPCに保存し、ネットがなくても動くようにする。
 // ネットがあるときは常に最新を取りに行き、取れなかったときだけ保存済みのものを使う。
-const CACHE = "requie3-offline-v1";
+const CACHE = "requie3-offline-v2";
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll([
-    "./", "index.html", "control.html", "theater.html", "theater-config.js"
+    "./", "index.html", "control.html", "judge.html", "theater.html", "theater-config.js"
   ])).then(() => self.skipWaiting()));
 });
 

@@ -8,8 +8,14 @@
 <style>
 :root{--bg:#14110e;--panel:#1e1915;--line:#3a3028;--gold:#c9a24f;--text:#efe6d4;--mute:#a8916e}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,"Hiragino Sans","Yu Gothic",sans-serif}
-main{max-width:980px;margin:0 auto;padding:22px 18px 60px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
-header,.wide{grid-column:1/-1}
+main{max-width:980px;margin:0 auto;padding:22px 18px 60px}
+#tabShow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+[hidden]{display:none!important}
+.wide{grid-column:1/-1}
+header{margin-bottom:14px}
+.tabs{display:flex;gap:8px;margin:14px 0 0}.tabs button{padding:8px 18px}.tabs button[aria-selected=true]{background:var(--gold);color:#1a140d;border-color:var(--gold);font-weight:700}
+#tabJudge iframe{width:100%;height:calc(100vh - 150px);min-height:520px;border:1px solid var(--line);border-radius:10px;background:#efe6d4}
+.luca{margin-top:10px;padding:10px 12px;border:1px dashed #e08a5a;border-radius:8px}.luca .row{margin-top:6px}
 h1{font:600 20px/1.3 serif;letter-spacing:.12em;margin:0 0 4px}h1 span{color:var(--gold)}
 .sub{color:var(--mute);font-size:13px;margin:0}
 section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
@@ -37,18 +43,20 @@ ol.segs{margin:6px 0 0;padding-left:1.4em}li.now{color:var(--gold);font-weight:7
 label.rng{display:flex;align-items:center;gap:10px;font-size:14px}input[type=range]{width:180px;accent-color:var(--gold)}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#3a2a1e;border:1px solid var(--gold);padding:10px 18px;border-radius:8px;display:none}
 kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;color:var(--mute)}
-@media(max-width:760px){main{grid-template-columns:1fr}}
+@media(max-width:760px){#tabShow{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main>
-<header><h1>REQUIE<span>Ⅲ</span>　上映コントロール</h1><p class="sub">モニターに流すものを操作します。エンディングアプリで判定した結果は、ここに自動で届きます。</p></header>
+<header><h1>REQUIE<span>Ⅲ</span>　上映コントロール</h1><p class="sub">モニター（プロジェクター）に流すものを操作します。「エンディング判定」タブで判定した結果は、「進行」の「エンディング」に自動で届きます。</p>
+<div class="tabs" role="tablist"><button role="tab" id="tabBtnShow" aria-selected="true">進行</button><button role="tab" id="tabBtnJudge" aria-selected="false">エンディング判定</button></div></header>
+<div id="tabShow">
 
 <section class="wide">
 <h2>モニター画面</h2>
 <div class="row"><button class="main" id="openMonitor">モニター画面を開く</button><div class="status"><span class="dot" id="monDot"></span><span id="monText">未接続</span></div></div>
 <p id="warn" hidden style="background:#5a2a1e;border:1px solid #e08a5a;border-radius:8px;padding:10px 14px;margin:12px 0 0;font-weight:700"></p><p class="note" id="mediaInfo"></p>
-<p class="note">開いたウィンドウをモニターへドラッグし、モニター側の画面を一度クリックすると全画面になります。</p>
+<p class="note">プロジェクター（HDMI）をつないでから押すと、モニター画面がプロジェクター側に開きます（初回は「ウィンドウの管理」の許可を求められるので「許可」）。プロジェクター側の画面を一度クリックすると全画面になります。うまく移らないときは、開いたウィンドウをプロジェクター側へドラッグしてからクリックしてください。</p>
 </section>
 
 <section>
@@ -75,7 +83,7 @@ kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;
 <h2>エンディング</h2>
 <div class="row"><button class="main" id="playBtn" disabled>エンディングを上映</button><button data-cmd="pause">一時停止 / 再開</button></div>
 <div class="row" style="margin-top:8px"><button data-cmd="nextPara">次の段落 <kbd>→</kbd></button><button data-cmd="nextSeg">次の章 <kbd>↓</kbd></button></div>
-<div class="story" id="storyInfo">まだエンディングが届いていません。<a href="index.html" target="requie3-ending" style="color:var(--gold)">エンディングアプリ</a>で判定してください。</div>
+<div class="story" id="storyInfo">まだエンディングが届いていません。<a href="#" id="toJudge" style="color:var(--gold)">「エンディング判定」タブ</a>で判定してください。</div>
 </section>
 
 <section class="wide">
@@ -83,15 +91,17 @@ kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;
 <div class="row" style="gap:24px"><label class="rng">文字の速さ <input type="range" id="speed" min="6" max="30" value="14"><span id="speedV">14</span>文字/秒</label><label class="rng">音量 <input type="range" id="volume" min="0" max="100" value="80"><span id="volV">80</span></label></div>
 <p class="note">キーボード：<kbd>N</kbd> 次のシーン　<kbd>スペース</kbd> タイマー開始/一時停止（エンディング中は上映の一時停止）　<kbd>→</kbd> 次の段落　<kbd>↓</kbd> 次の章</p>
 </section>
+</div>
+<div id="tabJudge" hidden><iframe id="judgeFrame" src="judge.html?embed=1" title="エンディング判定"></iframe></div>
 </main>
 <div class="toast" id="toast"></div>
 <script>
-const BUILD="2026-11-27-1";
+const BUILD="2026-11-27-9";
 const C=window.THEATER_CONFIG;const ch=new BroadcastChannel("requie3-theater");const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let story=null,lastSeen=0,mon=null;
 const cmd=(c,extra)=>ch.postMessage({type:"cmd",cmd:c,...extra});
-function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display="none",3500);}
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display="none",8000);}
 
 // ===== 進行の状態（ここが親。モニターはこれに従って表示する） =====
 let show={scene:0,nonce:0,names:{},timer:null,blackout:false};
@@ -133,7 +143,12 @@ function renderStory(){
   if(!story)return;$("playBtn").disabled=false;
   const hm=new Date(story.stamp).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"});
   const n=story.segs.filter(s=>s.pending||(s.text||"").trim()).length;
-  $("storyInfo").innerHTML=`<b>${hm} に判定したエンディングを受信済み</b>（${n}章）<ol class="segs">${story.segs.map((s,i)=>s.pending?`<li class="wait" data-i="${i}">ルカの選択待ち（エンディングアプリで選ぶと続きが流れます）</li>`:(s.text||"").trim()?`<li data-i="${i}">${esc(s.id)}</li>`:"").join("")}</ol>`;markNow();}
+  $("storyInfo").innerHTML=`<b>${hm} に判定したエンディングを受信済み</b>（${n}章）<ol class="segs">${story.segs.map((s,i)=>s.pending?`<li class="wait" data-i="${i}">ルカの選択待ち</li>`:(s.text||"").trim()?`<li data-i="${i}">${esc(s.id)}</li>`:"").join("")}</ol>`;renderLuca();markNow();}
+function renderLuca(){const wait=story&&story.segs.some(s=>s.pending);let box=$("lucaBox");
+  if(!wait){if(box)box.remove();return;}
+  if(!box){box=document.createElement("div");box.id="lucaBox";box.className="luca";box.innerHTML=`<b>ルカは、永遠王の骸を――</b>（ルカ役のプレイヤーに聞いて押す）<div class="row"><button class="main" data-luca="shoot">撃つ</button><button data-luca="spare">撃たない</button></div>`;
+    box.onclick=e=>{const b=e.target.closest("[data-luca]");if(!b)return;ch.postMessage({type:"lucaChoice",value:b.dataset.luca});toast("ルカの選択を送りました");};}
+  $("storyInfo").appendChild(box);}
 function markNow(){document.querySelectorAll("#storyInfo li").forEach(li=>li.classList.toggle("now",!!mon&&mon.mode==="ending"&&+li.dataset.i===mon.si));}
 
 function renderAll(){
@@ -142,11 +157,24 @@ function renderAll(){
   $("blackout").classList.toggle("on",!!show.blackout);$("blackout").textContent=show.blackout?"暗転を解除":"暗転";
   renderClock();}
 
+// ===== タブ（進行／エンディング判定） =====
+function showTab(t){$("tabShow").hidden=t!=="show";$("tabJudge").hidden=t!=="judge";$("tabBtnShow").setAttribute("aria-selected",t==="show");$("tabBtnJudge").setAttribute("aria-selected",t==="judge");}
+$("tabBtnShow").onclick=()=>showTab("show");$("tabBtnJudge").onclick=()=>showTab("judge");
+document.addEventListener("click",e=>{if(e.target.id==="toJudge"){e.preventDefault();showTab("judge");}});
+// 「進行」タブが表示中でないときはキー操作を効かせない（判定タブの入力と混ざらないように）
+const onShowTab=()=>!$("tabShow").hidden;
+
 // ===== 調整 =====
-$("openMonitor").onclick=()=>window.open("theater.html","requie3-monitor","popup,width=1280,height=720");
+$("openMonitor").onclick=async()=>{
+  // 先にウィンドウを開く（許可を待ってから開くとポップアップとしてブロックされることがある）→ プロジェクター側へ動かす
+  const w=window.open("theater.html?v="+Date.now(),"requie3-monitor","popup,width=1280,height=720");   // 毎回違う印を付けて、必ず新しい版を読む
+  if(!w){toast("ポップアップがブロックされました。アドレスバー右のアイコンから許可してください");return;}
+  try{if("getScreenDetails" in window){const d=await getScreenDetails();const other=d.screens.find(x=>x!==d.currentScreen);
+    if(other){w.moveTo(other.availLeft,other.availTop);w.resizeTo(other.availWidth,other.availHeight);toast("プロジェクター側に開きました。プロジェクター側を一度クリックしてください");}
+    else toast("プロジェクターが見つかりません（HDMI をつないでから押してください）");}}catch(e){toast("開いたウィンドウをプロジェクター側へドラッグして、一度クリックしてください");}};
 $("speed").oninput=e=>{$("speedV").textContent=e.target.value;cmd("speed",{value:+e.target.value});};
 $("volume").oninput=e=>{$("volV").textContent=e.target.value;cmd("volume",{value:e.target.value/100});};
-document.addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;
+document.addEventListener("keydown",e=>{if(e.target.tagName==="INPUT"||!onShowTab())return;
   if(e.code==="Space"){e.preventDefault();if(sc().type==="timer")tToggle();else cmd("pause");}
   if(e.key==="n"||e.key==="N")goScene(show.scene+1);
   if(e.key==="ArrowRight")cmd("nextPara");if(e.key==="ArrowDown"){e.preventDefault();cmd("nextSeg");}});
@@ -157,7 +185,7 @@ ch.onmessage=({data:m})=>{
   else if(m.type==="status"){lastSeen=Date.now();mon=m;
     $("monText").textContent=m.started?`接続中　いま：${m.label||""}${m.paused?"（一時停止中）":""}`:"接続中（モニター画面をクリックしてください）";
     $("nowLabel").textContent=m.started?`モニター：${m.label||""}`:"";markNow();
-    const w=$("warn");if(m.build!==BUILD){w.hidden=false;w.textContent="モニター画面が古い版のままです。モニター画面のウィンドウを閉じて、もう一度「モニター画面を開く」を押してください。";}
+    const w=$("warn");if(m.build!==BUILD){w.hidden=false;w.textContent="モニター画面が古い版です。自動で読み直しています…（直らないときは「モニター画面を開く」を押してください）";}
     else if(!m.started){w.hidden=false;w.textContent="モニター画面がまだ待機中です。モニター側の画面を一度クリックしてください（クリックするまで操作が反映されません）。";}
     else w.hidden=true;
     if(m.media){const d=m.media;$("mediaInfo").innerHTML=d.done<d.total?`素材を読み込み中… ${d.done} / ${d.total}`:d.failed.length?`<span style="color:#e08a5a">読み込めなかった素材：${esc(d.failed.join("、"))}</span>`:`<span style="color:#6fcf7a">● 素材 ${d.total} 件の準備完了（ネットがなくても上映できます）</span>`;}}
@@ -168,7 +196,7 @@ ch.onmessage=({data:m})=>{
 setInterval(()=>{const on=Date.now()-lastSeen<2500;$("monDot").classList.toggle("on",on);if(!on){$("warn").hidden=true;$("monText").textContent="未接続（「モニター画面を開く」を押してください）";$("nowLabel").textContent="";}},1000);
 try{const s=JSON.parse(localStorage.getItem("requie3-story")||"null");if(s){story=s;renderStory();}}catch(e){}
 renderAll();ch.postMessage({type:"hello"});ch.postMessage({type:"show",show,build:BUILD});
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker" in navigator&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname))navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
 </html>
