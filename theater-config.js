@@ -12,12 +12,19 @@ window.THEATER_CONFIG = {
     jonah_lights: "media/jonah_lights.mp4",   // ジョナEND：光の中の人影 → 館の窓が全部光る
     jonah_exit: "media/jonah_exit.mp4",       // ジョナEND：扉が開いて、館のあるじが外へ出てくる
     legion_missile: "media/legion_missile.mp4", // レギオンEND：館の屋根にミサイル → 黒煙
-    legion_moonlight: "media/legion_moonlight.mp4" // レギオンEND：地下の天井の穴から月明かり（外へ出られる＝助けが来た）
+    legion_moonlight: "media/legion_moonlight.mp4", // レギオンEND：地下の天井の穴から月明かり（外へ出られる＝助けが来た）
+    biagio_steps: "media/biagio_steps.mp4",   // ビアージョ側END：知らない男たちのブーツが岩の階段を駆け降りてくる（元の4秒まで）
+    biagio_city: "media/biagio_city.mp4"      // ビアージョ側END：荒れ果てた街を高い所から見下ろす
   },
 
   // BGMファイル（mp3推奨・ループ再生）
   bgm: {
-    idle: "media/bgm_idle.mp3",         // 待機中
+    wait: "media/bgm_wait.mp3",                 // 待機・OP：Sangue e fumo a mezzanotte
+    cast: "media/bgm_cast.mp3",                 // 配役決定：The Roman Infiltration
+    reading: "media/bgm_reading.mp3",           // 読み込み・ルール説明・休憩：Genoa at AM
+    investigate: "media/bgm_investigate.mp3",   // 調査：The Villa Gambit
+    discuss: "media/bgm_discuss.mp3",           // 議論・告解・第3フェーズ：Before The Hammer Falls
+    idle: "media/bgm_idle.mp3",         // 前の仮の曲（イベント・クライマックスで使用中）
     ending: "media/bgm_ending.mp3",     // エンディング本編
     epilogue: "media/bgm_epilogue.mp3"  // エピローグ
   },
@@ -39,7 +46,11 @@ window.THEATER_CONFIG = {
     { seg: "^MAIN_A_JOHN_COOK_END$", at: "1階のドアから悠々と外へ出て", video: "jonah_exit" },
     // レギオンEND：「ドォーン！」で屋上が爆発する段落のあと、ミサイル → 地下の天井の穴から月明かり（続けて流す）
     { seg: "^MAIN_B_", at: "ドォーン", video: "legion_missile" },
-    { seg: "^MAIN_B_", at: "ドォーン", video: "legion_moonlight" }
+    { seg: "^MAIN_B_", at: "ドォーン", video: "legion_moonlight" },
+    // ビアージョ側END（MAIN_C）：チンピラ達が地下へ押し寄せる段落で足元、街の段落で俯瞰（最後まで背景に残る）
+    { seg: "^MAIN_C_", at: "突然地下へ押し寄せ", video: "biagio_steps" },
+    { seg: "^MAIN_C_A_", at: "街は荒れ果て", video: "biagio_city" },
+    { seg: "^MAIN_C_B_", at: "街はヴァルチャーズによって支配されていた", video: "biagio_city" }
   ],
 
   // 背景用の静止画（ゆっくり動かして表示します）
@@ -95,10 +106,10 @@ window.THEATER_CONFIG = {
   //   timerPos: "right"＝右下（調査の間取り）／"top"＝上（第3フェーズ）／書かない＝真ん中
   //   brightness: その場面の背景の明るさ（無ければ stillBrightness） / drift: true で背景がゆっくり寄っていく
   scenes: [
-    { type: "loop",   title: "開場・待機", bg: "wait", still: true, brightness: 1, overlay: "title_wait", bgm: "idle" },
+    { type: "loop",   title: "開場・待機", bg: "wait", still: true, brightness: 1, overlay: "title_wait", bgm: "wait" },
     // 1. オープニング：待機の絵から黒を挟まずに OP の1コマ目へ。止めたまま導入の文章 → playFrom の段落から OP が動き出す
     //    （台本は書き換え予定。paras の1つが1画面。playFrom はその段落に含まれる言葉）
-    { type: "video",  phase: "オープニング", title: "潜入", video: "op", autoNext: true, bgm: "idle",
+    { type: "video",  phase: "オープニング", title: "潜入", video: "op", autoNext: true, bgm: "wait",
       intro: {
         playFrom: "そこで、信頼のおける",
         paras: [
@@ -110,10 +121,10 @@ window.THEATER_CONFIG = {
         ]
       } },
     // 2. キャラクター選択・読み込み
-    { type: "cast",   phase: "キャラクター選択", title: "配役発表", bgm: "idle" },
-    { type: "timer",  phase: "キャラクター選択", title: "読み込み", minutes: 15, bg: "masks_base", still: true, maskTake: true, timerPos: "right", bgm: "idle" },   // 0になったらマスクが一斉に取られる
+    { type: "cast",   phase: "キャラクター選択", title: "配役発表", bgm: "cast" },
+    { type: "timer",  phase: "キャラクター選択", title: "読み込み", minutes: 15, bg: "masks_base", still: true, maskTake: true, timerPos: "right", bgm: "reading" },   // 0になったらマスクが一斉に取られる
     // 3. ルール説明
-    { type: "loop",   title: "ルール説明", bg: "wait", still: true, brightness: 1, drift: true, bgm: "idle",
+    { type: "loop",   title: "ルール説明", bg: "wait", still: true, brightness: 1, drift: true, bgm: "reading",
       // 台本「02｜ルール説明」。1つが1画面、「\n」で改行、【】の行は見出し。→キーで送る。時間は進行表に合わせた（第1議論20分、第3フェーズ30分）
       script: [
         "【基本ルール】\nこれから皆さんには、それぞれ一人のキャラクターを演じていただきます。\n設定書には、あなたの生い立ちや今回の任務、目的、他の人には知られていない秘密などが書かれています。",
@@ -134,17 +145,17 @@ window.THEATER_CONFIG = {
       ] },
     // 4. 第1フェーズ（2階）
     { type: "loop",   phase: "第1フェーズ", title: "イベント", bg: "p1_discuss", still: true, bgm: "idle", showTitle: true },
-    { type: "timer",  phase: "第1フェーズ", title: "調査", minutes: 5,  bg: "p1_investigate", still: true, timerPos: "right", bgm: "idle" },
-    { type: "timer",  phase: "第1フェーズ", title: "議論", minutes: 20, bg: "p1_discuss", still: true, bgm: "idle" },
-    { type: "timer",  phase: "第1フェーズ", title: "告解", minutes: 5,  bg: "p1_discuss", still: true, bgm: "idle" },
+    { type: "timer",  phase: "第1フェーズ", title: "調査", minutes: 5,  bg: "p1_investigate", still: true, timerPos: "right", bgm: "investigate" },
+    { type: "timer",  phase: "第1フェーズ", title: "議論", minutes: 20, bg: "p1_discuss", still: true, bgm: "discuss" },
+    { type: "timer",  phase: "第1フェーズ", title: "告解", minutes: 5,  bg: "p1_discuss", still: true, bgm: "discuss" },
     // 5. 第2フェーズ（1階）
     { type: "loop",   phase: "第2フェーズ", title: "イベント", bg: "p2_discuss", still: true, bgm: "idle", showTitle: true },
-    { type: "timer",  phase: "第2フェーズ", title: "調査", minutes: 5,  bg: "p2_investigate", still: true, timerPos: "right", bgm: "idle" },
-    { type: "timer",  phase: "第2フェーズ", title: "議論", minutes: 20, bg: "p2_discuss", still: true, bgm: "idle" },
-    { type: "timer",  phase: "第2フェーズ", title: "告解", minutes: 5,  bg: "p2_discuss", still: true, bgm: "idle" },
+    { type: "timer",  phase: "第2フェーズ", title: "調査", minutes: 5,  bg: "p2_investigate", still: true, timerPos: "right", bgm: "investigate" },
+    { type: "timer",  phase: "第2フェーズ", title: "議論", minutes: 20, bg: "p2_discuss", still: true, bgm: "discuss" },
+    { type: "timer",  phase: "第2フェーズ", title: "告解", minutes: 5,  bg: "p2_discuss", still: true, bgm: "discuss" },
     // 6. 第3フェーズ（地下）
-    { type: "timer",  phase: "第3フェーズ", title: "イベント・休憩", minutes: 10, bg: "p3_discuss", still: true, timerPos: "top", bgm: "idle" },
-    { type: "timer",  phase: "第3フェーズ", title: "調査＆最終議論", minutes: 30, bg: "p3_discuss", still: true, timerPos: "top", bgm: "idle" },
+    { type: "timer",  phase: "第3フェーズ", title: "イベント・休憩", minutes: 10, bg: "p3_discuss", still: true, timerPos: "top", bgm: "reading" },
+    { type: "timer",  phase: "第3フェーズ", title: "調査＆最終議論", minutes: 30, bg: "p3_discuss", still: true, timerPos: "top", bgm: "discuss" },
     // 7. クライマックスフェーズ
     { type: "loop",   title: "クライマックスフェーズ", bg: "p3_discuss", still: true, bgm: "idle", showTitle: true },
     // 8. エンディング
