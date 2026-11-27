@@ -74,12 +74,12 @@ window.THEATER_CONFIG = {
     { type: "loop",   title: "ルール説明", bg: "town", bgm: "idle", showTitle: true },
     // 4. 第1フェーズ
     { type: "loop",   phase: "第1フェーズ", title: "イベント", bg: "town", bgm: "idle", showTitle: true },
-    { type: "timer",  phase: "第1フェーズ", title: "捜査", minutes: 5,  bg: "town", bgm: "idle" },
+    { type: "timer",  phase: "第1フェーズ", title: "調査", minutes: 5,  bg: "town", bgm: "idle" },
     { type: "timer",  phase: "第1フェーズ", title: "議論", minutes: 20, bg: "town", bgm: "idle" },
     { type: "timer",  phase: "第1フェーズ", title: "告解", minutes: 5,  bg: "town", bgm: "idle" },
     // 5. 第2フェーズ
     { type: "loop",   phase: "第2フェーズ", title: "イベント", bg: "town", bgm: "idle", showTitle: true },
-    { type: "timer",  phase: "第2フェーズ", title: "捜査", minutes: 5,  bg: "town", bgm: "idle" },
+    { type: "timer",  phase: "第2フェーズ", title: "調査", minutes: 5,  bg: "town", bgm: "idle" },
     { type: "timer",  phase: "第2フェーズ", title: "議論", minutes: 20, bg: "town", bgm: "idle" },
     { type: "timer",  phase: "第2フェーズ", title: "告解", minutes: 5,  bg: "town", bgm: "idle" },
     // 6. 第3フェーズ
