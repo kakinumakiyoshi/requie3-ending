@@ -70,6 +70,7 @@ kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;
 <h2>タイマー</h2>
 <div id="clock">--:--</div>
 <div class="row" style="justify-content:center"><button class="main" id="tStart">スタート</button><button id="tMinus">−1分</button><button id="tPlus">＋1分</button><button id="tReset">リセット</button></div>
+<div class="row" style="justify-content:center;margin-top:8px"><button id="takeMasks" hidden>マスクを取る（読み込みの終わり）</button></div>
 <p class="note" id="tInfo">タイマーのあるシーン（読み込み時間・調査・議論など）で使えます。</p>
 </section>
 
@@ -96,7 +97,7 @@ kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;
 </main>
 <div class="toast" id="toast"></div>
 <script>
-const BUILD="2026-11-27-9";
+const BUILD="2026-11-27-12";
 const C=window.THEATER_CONFIG;const ch=new BroadcastChannel("requie3-theater");const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let story=null,lastSeen=0,mon=null;
@@ -121,9 +122,9 @@ $("blackout").onclick=()=>{show.blackout=!show.blackout;pushShow();};
 const rem=()=>{const t=show.timer;if(!t)return 0;return t.endAt?Math.max(0,t.endAt-Date.now()):t.remaining;};
 function tToggle(){const t=show.timer;if(!t)return;if(t.endAt){t.remaining=rem();t.endAt=null;}else{if(t.remaining<=0)return;t.started=true;t.endAt=Date.now()+t.remaining;}pushShow();}
 function tAdd(ms){const t=show.timer;if(!t)return;if(t.endAt)t.endAt=Math.max(Date.now(),t.endAt+ms);else t.remaining=Math.max(0,t.remaining+ms);pushShow();}
-$("tStart").onclick=tToggle;$("tPlus").onclick=()=>tAdd(60000);$("tMinus").onclick=()=>tAdd(-60000);
+$("tStart").onclick=tToggle;$("takeMasks").onclick=()=>cmd("takeMasks");$("tPlus").onclick=()=>tAdd(60000);$("tMinus").onclick=()=>tAdd(-60000);
 $("tReset").onclick=()=>{const t=show.timer;if(!t)return;show.timer={total:t.total,remaining:t.total,endAt:null,started:false};pushShow();};
-function renderClock(){const t=show.timer;const on=!!t;["tStart","tPlus","tMinus","tReset"].forEach(id=>$(id).disabled=!on);
+function renderClock(){$("takeMasks").hidden=!sc().maskTake;const t=show.timer;const on=!!t;["tStart","tPlus","tMinus","tReset"].forEach(id=>$(id).disabled=!on);
   if(!on){$("clock").textContent="--:--";$("clock").className="";$("tInfo").textContent="タイマーのあるシーン（読み込み時間・調査・議論など）で使えます。";return;}
   const s=Math.ceil(rem()/1000);$("clock").textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
   $("clock").className=t.started&&s<=0?"up":t.started&&s<=60?"warn":"";

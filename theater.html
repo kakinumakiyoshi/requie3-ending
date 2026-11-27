@@ -16,7 +16,14 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 #bgImg{background:#000 center/cover no-repeat;animation:drift 60s ease-in-out infinite alternate;filter:brightness(.72)}
 #bgImg.still{animation:none;filter:brightness(var(--stillBright,1));transform:none}
 #bgLayer.still video{filter:brightness(var(--stillBright,1))}
+/* ゆっくり寄っていく動き（drift: true の場面） */
+#bgLayer.drift video,#bgImg.drift{animation:slowpush 40s ease-in-out infinite alternate}
+@keyframes slowpush{from{transform:scale(1)}to{transform:scale(1.08) translateY(-1%)}}
 #ovImg{background:center/contain no-repeat}
+/* 読み込みの円卓：マスクを1枚ずつ置く層（背景と同じ 16:9 の箱に、背景と同じ明るさで） */
+#maskLayer{overflow:hidden}
+#maskBox{position:absolute;left:50%;top:50%;width:max(100vw,177.78vh);height:max(100vh,56.25vw);transform:translate(-50%,-50%);filter:brightness(var(--stillBright,1))}
+#maskBox img{position:absolute;will-change:transform}
 /* タイマーの位置：右下（調査の間取り）／上（第3フェーズ） */
 #timerLayer.pos-right{align-items:flex-end;justify-content:flex-end;padding:0 4.5vw 6vh 0;background:none;text-align:right}
 #timerLayer.pos-right #tClock{font-size:clamp(70px,10vw,200px)}
@@ -49,22 +56,33 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 .castOne .role{font-size:clamp(40px,6vw,110px);letter-spacing:.15em;color:#f3e3c0}
 .castOne .who{margin-top:.6em;font-size:clamp(20px,2.6vw,48px);letter-spacing:.2em;color:#c9a24f}
 .castOne .lbl{font:600 clamp(11px,1vw,16px) system-ui;letter-spacing:.5em;color:#a8916e;margin-bottom:1.2em}
+/* 設定書 P1 の画像はそのままの比率で（切り取らない） */
+.castOne figure.p1{margin:0;display:flex;flex-direction:column;align-items:center}
+.castOne figure.p1 img{height:78vh;width:auto;aspect-ratio:auto;object-fit:contain}
+.castOne figure.p1 figcaption{margin-top:2.2vh;font-size:clamp(24px,3vw,56px);letter-spacing:.2em;color:#e2d8c4;text-shadow:0 2px 14px #000}
 #castAll{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity 1.5s}
 #castAll.on{opacity:1}
 #castAll h2{font-weight:400;letter-spacing:.5em;color:#c9a24f;font-size:clamp(16px,1.6vw,28px);margin:0 0 3vh}
 #castGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:1.6vw;width:90vw}
 #castGrid figure{margin:0;text-align:center}
-#castGrid img{width:100%;aspect-ratio:3/4;object-fit:cover;border:1px solid #c9a24f44}
+#castGrid img{width:100%;aspect-ratio:2150/3035;object-fit:contain;border:1px solid #c9a24f44}
 #castGrid b{display:block;margin-top:.6em;font-size:clamp(16px,1.7vw,32px);letter-spacing:.1em;color:#f3e3c0;font-weight:400}
-#castGrid span{display:block;font-size:clamp(12px,1.2vw,22px);color:#c9a24f;letter-spacing:.1em}
+#castGrid span{display:block;margin-top:.6em;font-size:clamp(14px,1.4vw,26px);color:#e2d8c4;letter-spacing:.1em}
 #textLayer{display:flex;align-items:center;justify-content:center;background:radial-gradient(120% 90% at 50% 45%,rgba(30,20,14,.55),rgba(0,0,0,.92))}
 #endBgA,#endBgB{transition:opacity 1.6s ease}
+/* OP の導入：止めの間は薄い黒の窓、動き出したら窓なしで映像の上に直接 */
+#textLayer.intro-box,#textLayer.intro-free{background:none}
+#textLayer.intro-box #text{background:rgba(0,0,0,.5);padding:2.2em 3em 1.6em;border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.5);transition:background 1.2s ease,box-shadow 1.2s ease}
+#textLayer.intro-free #text{background:rgba(0,0,0,0);padding:2.2em 3em 1.6em;box-shadow:none;transition:background 1.2s ease,box-shadow 1.2s ease;text-shadow:0 0 8px #000,0 2px 18px #000,0 0 3px #000}
 #textLayer.onvid{background:radial-gradient(120% 90% at 50% 50%,rgba(0,0,0,.46),rgba(0,0,0,.78))}
 #text{width:min(78vw,1400px);font-size:clamp(20px,2.35vw,44px);line-height:2;letter-spacing:.06em;text-shadow:0 2px 14px #000}
 #text p{margin:0 0 .7em;transition:opacity 1.4s ease,filter 1.4s ease}
 #text p.old{opacity:.5}
 #text p.gone{opacity:0}
 #text p.line{color:#f3d9a0}
+#textLayer.intro-box #text p.old,#textLayer.intro-free #text p.old{opacity:.82}
+#textLayer.intro-box #text{font-size:clamp(18px,1.9vw,36px)}
+#textLayer.intro-box #text p.line:first-child{letter-spacing:.2em}
 #text .c{opacity:0;animation:in .45s ease forwards}
 @keyframes in{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
 #endWait{display:flex;align-items:center;justify-content:center;background:#000}
@@ -83,6 +101,7 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 <div class="layer hide" id="bgImg"></div>
 <div class="layer hide" id="bgLayer"><video id="bgVideo" muted playsinline loop></video></div>
 <div class="layer hide" id="ovImg"></div>
+<div class="layer hide" id="maskLayer"><div id="maskBox"></div></div>
 <div class="layer hide serif" id="castLayer"><div id="castAll"><h2>CAST</h2><div id="castGrid"></div></div></div>
 <div class="layer hide serif" id="titleLayer"><div id="ttPhase"></div><div id="ttTitle"></div></div>
 <div class="layer hide serif" id="timerLayer"><div id="tPhase"></div><div id="tTitle"></div><div id="tBar"><i></i></div><div id="tLeft">TIME LEFT</div><div id="tClock">15:00</div><div id="tNote"></div></div>
@@ -98,7 +117,7 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 <div class="layer" id="start"><b>REQUIEⅢ　モニター画面</b><span>このウィンドウをモニターに移動してから、<br>画面をクリックしてください（全画面になり、音が出せるようになります）。</span><span id="mediaState" style="color:#efe6d4">素材を確認中…</span></div>
 
 <script>
-const BUILD="2026-11-27-9";
+const BUILD="2026-11-27-12";
 const C=window.THEATER_CONFIG;const $=id=>document.getElementById(id);
 const ch=new BroadcastChannel("requie3-theater");
 let story=null;
@@ -116,7 +135,7 @@ setInterval(status,1000);
 const blobs={};let media={done:0,total:0,failed:[]};
 const U=src=>blobs[src]||src;
 async function preload(){
-  const list=[...new Set([...Object.values(C.videos||{}),...Object.values(C.bgm||{}),...Object.values(C.images||{}),...Object.values(C.sounds||{}),...(C.characters||[]).map(c=>c.image),"media/cover-title.jpg"].filter(Boolean))];
+  const list=[...new Set([...Object.values(C.videos||{}),...Object.values(C.bgm||{}),...Object.values(C.images||{}),...Object.values(C.sounds||{}),...(C.characters||[]).map(c=>c.image),...(C.maskSprites||[]).map(m=>m.src),"media/cover-title.jpg"].filter(Boolean))];
   media={done:0,total:list.length,failed:[]};showMedia();
   let cache=null;try{cache=await caches.open("requie3-offline-v1");}catch(e){}
   await Promise.all(list.map(async src=>{
@@ -140,7 +159,7 @@ function duck(on){bgmLevel=on?0.25:1;fadeTo(bgmLevel,800);}
 function playSfx(key){const s=C.sounds&&C.sounds[key];if(!s)return;sfx.src=U(s);sfx.volume=volume;sfx.currentTime=0;sfx.play().catch(()=>{});}
 
 // ---------- 画面 ----------
-const LAYERS=["titleLayer","bgImg","bgLayer","ovImg","castLayer","timerLayer","endWait","endBgA","endBgB","textLayer","fxLayer","closing","black"];
+const LAYERS=["titleLayer","bgImg","bgLayer","ovImg","maskLayer","castLayer","timerLayer","endWait","endBgA","endBgB","textLayer","fxLayer","closing","black"];
 function only(...ids){LAYERS.forEach(id=>$(id).classList.toggle("hide",!ids.includes(id)));}
 function show1(id,on){$(id).classList.toggle("hide",!on);}
 function setBackground(key){
@@ -160,6 +179,50 @@ function playVideo(key,r){return new Promise((res,rej)=>{const v=$("fxVideo"),sr
   v.onended=end;v.onerror=()=>{why(`読み込めませんでした（エラー ${v.error&&v.error.code}）`);end();};let t0=Date.now();const chk=setInterval(()=>{if(!st.paused&&v.currentTime===0&&Date.now()-t0>4000){why("4秒たっても始まらないので飛ばしました");end();return;}if(st.paused)t0=Date.now();if(r!==run){clearInterval(chk);v.pause();show1("fxLayer",false);duck(false);rej("stop");}else if(st.paused&&!v.paused)v.pause();else if(!st.paused&&v.paused&&!v.ended)v.play().catch(()=>{});},200);
 });}
 
+// ---------- ルール説明など：背景の上の薄い黒の窓に、台本の文章（script）を1画面ずつ出す。最後の画面は残す ----------
+async function typeLines(page,r){for(const line of page.split("\n").map(x=>x.trim()).filter(Boolean)){
+  if(/^【/.test(line)){await typePara(line,r,true);continue;}
+  for(const blk of splitBlocks(line))await typePara(blk.t,r,blk.line);}}
+async function playScript(sc,r){
+  const pages=(sc.script||[]).filter(x=>x&&x.trim());
+  $("text").innerHTML="";$("textLayer").classList.remove("onvid","intro-free");$("textLayer").classList.add("intro-box");show1("textLayer",true);
+  try{await sleep(1200,r);
+    for(st.pi=0;st.pi<pages.length;st.pi++){
+      st.label=(sc.title||"")+" "+(st.pi+1)+"/"+pages.length;status();
+      await typeLines(pages[st.pi],r);
+      if(st.pi<pages.length-1){await sleep(600,r);await clearText(r);await sleep(400,r);}
+    }
+    st.label=(sc.title||"")+"（終わり）";status();
+  }catch(e){}
+}
+
+// ---------- OP の導入：待機の絵から切れ目なく OP の1コマ目へ。1コマ目で止めたまま文章が出て、intro.playFrom の段落から動き出す ----------
+async function playIntro(sc,i,r){
+  const v=$("endVidA"),src=C.videos[sc.video];if(!src)return;
+  st.mode="intro";endBg.queue=[];endBg.cur=null;endBg.slot="A";
+  v.onended=null;v.loop=false;v.muted=false;v.volume=volume;v.src=U(src);v.currentTime=0;v.pause();endBg.cur=sc.video;   // 片付け処理に止められないように
+  // 待機の層は残したまま、上に OP の1コマ目をフェードで重ねる（黒は挟まない）
+  ["titleLayer","ovImg","castLayer","timerLayer","endWait","endBgB","fxLayer","closing","black"].forEach(id=>show1(id,false));
+  show1("endBgA",true);$("text").innerHTML="";$("textLayer").classList.remove("onvid","intro-free");$("textLayer").classList.add("intro-box");
+  setBgm(sc.bgm||"");
+  try{
+    await sleep(1800,r);["bgImg","bgLayer"].forEach(id=>show1(id,false));show1("textLayer",true);
+    const paras=(sc.intro.paras||[]).map(x=>x.trim()).filter(Boolean);let playing=false;
+    const go=()=>{if(playing)return;playing=true;$("textLayer").classList.replace("intro-box","intro-free");v.play().catch(e=>{send("toast",{msg:`映像「${sc.video}」：再生できませんでした（${e.name}）。音なしで流します`});v.muted=true;v.play().catch(()=>{});});};
+    const pauser=setInterval(()=>{if(r!==run){clearInterval(pauser);return;}if(!playing)return;if(st.paused&&!v.paused)v.pause();else if(!st.paused&&v.paused&&!v.ended)v.play().catch(()=>{});},200);
+    for(st.pi=0;st.pi<paras.length;st.pi++){
+      if(sc.intro.playFrom&&paras[st.pi].includes(sc.intro.playFrom))go();
+      st.label="オープニング｜導入 "+(st.pi+1)+"/"+paras.length;status();
+      await typeLines(paras[st.pi],r);
+      await sleep(600,r);await clearText(r);await sleep(400,r);
+    }
+    go();
+    while(!v.ended){if(r!==run)throw"stop";await sleep(300,r);}   // 文章が先に終わったら OP の終わりまで待つ
+    clearInterval(pauser);await sleep(800,r);$("textLayer").classList.remove("intro-box","intro-free");
+    if(sc.autoNext)send("sceneDone",{scene:i});
+  }catch(e){}
+}
+
 // ---------- エンディングの背景映像：文字は止めずに後ろで流す。終わったら最後のコマで止めて背景として残す ----------
 const endBg={queue:[],cur:null,slot:"A",base:null,watch:null};
 function endBgPlayNext(){
@@ -173,27 +236,40 @@ function endBgPlayNext(){
 function endBgQueue(key){endBg.queue.push(key);if(!endBg.cur)endBgPlayNext();}
 function endBgClear(){endBg.queue=[];endBg.cur=null;["A","B"].forEach(k=>{show1("endBg"+k,false);const v=$("endVid"+k);v.onended=null;setTimeout(()=>{if(!endBg.cur)v.pause();},1700);});$("textLayer").classList.remove("onvid");duck(false);}
 // 一時停止に合わせて背景映像も止める
-setInterval(()=>{if(!endBg.cur)return;const v=$("endVid"+endBg.slot);if(st.paused&&!v.paused)v.pause();else if(!st.paused&&v.paused&&!v.ended)v.play().catch(()=>{});},200);
+setInterval(()=>{if(!endBg.cur||st.mode!=="ending")return;const v=$("endVid"+endBg.slot);if(st.paused&&!v.paused)v.pause();else if(!st.paused&&v.paused&&!v.ended)v.play().catch(()=>{});},200);
 
-function stopAll(){run++;st.paused=false;st.waiting=false;$("fxVideo").pause();show1("fxLayer",false);endBgClear();duck(false);$("tPaused").hidden=true;}
+function stopAll(){$("textLayer").classList.remove("intro-box","intro-free");run++;st.paused=false;st.waiting=false;$("fxVideo").pause();show1("fxLayer",false);endBgClear();duck(false);$("tPaused").hidden=true;}
 
 // ---------- 進行表のシーン ----------
 // 作った背景の明るさ（theater-config.js の stillBrightness）
 document.documentElement.style.setProperty("--stillBright",String(C.stillBrightness||1));
+const setBright=sc=>document.documentElement.style.setProperty("--stillBright",String(sc&&sc.brightness!=null?sc.brightness:(C.stillBrightness||1)));
 function phaseLabel(p){const m={"第1フェーズ":"PHASE  I","第2フェーズ":"PHASE  II","第3フェーズ":"PHASE  III","キャラクター選択":"CHARACTER","オープニング":"OPENING"};return m[p]||p||"";}
 function sceneLook(sc){
+  setBright(sc);$("bgLayer").classList.toggle("drift",!!sc.drift);$("bgImg").classList.toggle("drift",!!sc.drift);
   $("bgImg").classList.toggle("still",!!sc.still);$("bgLayer").classList.toggle("still",!!sc.still);
   const ov=sc.overlay&&C.images&&C.images[sc.overlay];if(ov)$("ovImg").style.backgroundImage=`url("${U(ov)}")`;
   $("timerLayer").classList.toggle("pos-right",sc.timerPos==="right");$("timerLayer").classList.toggle("pos-top",sc.timerPos==="top");
-  return ov?["ovImg"]:[];}
+  const out=ov?["ovImg"]:[];
+  if(sc.maskTake){buildMasks();out.push("maskLayer");}
+  return out;}
+// ---------- 読み込みが終わったら（タイマーが0）、マスクが一斉にさささと取られる ----------
+let masksTaken=false;
+function buildMasks(){masksTaken=false;$("maskBox").innerHTML=(C.maskSprites||[]).map((m,k)=>`<img data-k="${k}" src="${U(m.src)}" alt="" style="left:${m.x}%;top:${m.y}%;width:${m.w}%;height:${m.h}%">`).join("");}
+function takeMasks(){if(masksTaken)return;masksTaken=true;
+  [...$("maskBox").children].forEach(el=>{const m=C.maskSprites[+el.dataset.k],a=m.angle*Math.PI/180;
+    const dx=Math.cos(a)*75,dy=Math.sin(a)*75,rot=(Math.random()*2-1)*18,delay=Math.random()*550;
+    el.animate([{transform:"none"},{transform:"scale(1.05)",offset:.18},{transform:`translate(${dx}vw,${dy}vh) rotate(${rot}deg) scale(1.05)`}],
+      {duration:780,delay,easing:"cubic-bezier(.5,0,.85,.25)",fill:"forwards"});});}
 function enterScene(i){
   const sc=C.scenes[i];if(!sc)return;stopAll();const r=run;st.scene=i;st.mode=sc.type;st.label=sc.title||sc.type;
   $("text").innerHTML="";timerUpFor=null;
   st.label=(sc.phase?sc.phase+"｜":"")+(sc.title||sc.type);
   const extra=sceneLook(sc);
-  if(sc.type==="loop"){$("ttPhase").textContent=phaseLabel(sc.phase);$("ttTitle").textContent=sc.title||"";only(setBackground(sc.bg),...extra,...(sc.showTitle?["titleLayer"]:[]));setBgm(sc.bgm||"");}
+  if(sc.type==="loop"){$("ttPhase").textContent=phaseLabel(sc.phase);$("ttTitle").textContent=sc.title||"";only(setBackground(sc.bg),...extra,...(sc.showTitle&&!sc.script?["titleLayer"]:[]));setBgm(sc.bgm||"");if(sc.script)playScript(sc,r);}
   else if(sc.type==="timer"){only(setBackground(sc.bg),...extra,"timerLayer");$("tPhase").textContent=phaseLabel(sc.phase);$("tTitle").textContent=sc.title||"";setBgm(sc.bgm||"");renderTimer();}
   else if(sc.type==="cast"){only("castLayer");setBgm(sc.bgm||"");castReveal(r);}
+  else if(sc.type==="video"&&sc.intro){playIntro(sc,i,r);}
   else if(sc.type==="video"){only("black");setBgm("",true);(async()=>{try{await sleep(700,r);await playVideo(sc.video,r);if(sc.autoNext)send("sceneDone",{scene:i});}catch(e){}})();}
   else if(sc.type==="ending"){only("endWait");setBgm(sc.bgm||"");}
   status();
@@ -201,14 +277,14 @@ function enterScene(i){
 
 const esc=s=>String(s).replace(/[&<>"]/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[x]));
 function nameOf(c){return (show&&show.names&&show.names[c.id]||"").trim();}
-function buildCastGrid(){$("castGrid").innerHTML=(C.characters||[]).map(c=>`<figure><img src="${U(c.image)}" alt=""><b>${esc(c.name)}</b><span>${esc(nameOf(c)||"―")}</span></figure>`).join("");}
+function buildCastGrid(){$("castGrid").innerHTML=(C.characters||[]).map(c=>`<figure><img src="${U(c.image)}" alt="">${C.castHideNames?"":`<b>${esc(c.name)}</b>`}<span>${esc(nameOf(c)||"―")}</span></figure>`).join("");}
 async function castReveal(r){
   const L=$("castLayer");L.querySelectorAll(".castOne").forEach(e=>e.remove());$("castAll").classList.remove("on");buildCastGrid();
   try{
     await sleep(1200,r);
     for(const c of C.characters||[]){
       const d=document.createElement("div");d.className="castOne";
-      d.innerHTML=`<img src="${U(c.image)}" alt=""><div><div class="lbl">CAST</div><div class="role">${esc(c.name)}</div><div class="who">${nameOf(c)?esc(nameOf(c)):"―"}</div></div>`;
+      d.innerHTML=C.castHideNames?`<figure class="p1"><img src="${U(c.image)}" alt=""><figcaption>${nameOf(c)?esc(nameOf(c)):"―"}</figcaption></figure>`:`<img src="${U(c.image)}" alt=""><div><div class="lbl">CAST</div><div class="role">${esc(c.name)}</div><div class="who">${nameOf(c)?esc(nameOf(c)):"―"}</div></div>`;
       L.appendChild(d);await sleep(60,r);d.classList.add("on");st.label="配役発表："+c.name;status();
       await sleep(3600,r);d.classList.remove("on");await sleep(900,r);d.remove();
     }
@@ -227,7 +303,7 @@ function renderTimer(){
   const up=!!t&&t.started&&ms<=0;$("tClock").classList.toggle("up",up);$("tClock").classList.toggle("warn",!up&&!!t&&t.started&&s<=60);
   $("tNote").textContent=up?"時間です":(t&&!t.started?"まもなく開始":"");
   $("tPaused").hidden=!(t&&t.started&&!t.endAt&&ms>0);
-  const key=st.scene+":"+(t&&t.endAt);if(up&&t.endAt&&timerUpFor!==key){timerUpFor=key;playSfx("timeUp");}
+  const key=st.scene+":"+(t&&t.endAt);if(up&&t.endAt&&timerUpFor!==key){timerUpFor=key;playSfx("timeUp");if(sc.maskTake)setTimeout(takeMasks,900);}
 }
 setInterval(renderTimer,200);
 
@@ -260,7 +336,8 @@ function charDelay(chr,nx){const base=1000/speed;
 async function typePara(p,r,isLine){
   const box=$("text"),el=document.createElement("p");if(isLine||/^[「『]/.test(p))el.classList.add("line");
   [...box.children].forEach(x=>x.classList.add("old"));
-  while(box.children.length>3){box.firstElementChild.remove();}
+  const keep=$("textLayer").classList.contains("intro-box")||$("textLayer").classList.contains("intro-free")?8:3;   // 窓の画面（ルール説明・OP）は1画面ぶん全部残す
+  while(box.children.length>keep){box.firstElementChild.remove();}
   box.appendChild(el);const cs=[...p];
   for(let i=0;i<cs.length;i++){const chr=cs[i];if(r!==run)throw"stop";if(st.paused)await waitResume(r);
     const s=document.createElement("span");s.className="c";s.textContent=chr;el.appendChild(s);
@@ -314,7 +391,7 @@ ch.onmessage=({data:m})=>{
   else if(m.type==="show"){if(m.build&&m.build!==BUILD){if(!sessionStorage.getItem("requie3-reloaded-"+m.build)){sessionStorage.setItem("requie3-reloaded-"+m.build,"1");location.replace("theater.html?v="+Date.now());}return;}applyShow(m.show);}
   else if(m.type==="cmd"){({play:playEnding,
      pause:()=>{st.paused=!st.paused;status();},
-     nextPara:()=>{skipPara=true;},nextSeg:()=>{skipSeg=true;skipPara=true;},
+     nextPara:()=>{skipPara=true;},takeMasks:()=>takeMasks(),nextSeg:()=>{skipSeg=true;skipPara=true;},
      speed:()=>{speed=m.value;},volume:()=>{volume=m.value;fadeTo(bgmLevel,0);$("fxVideo").volume=m.value;}
     }[m.cmd]||(()=>{}))();}
   else if(m.type==="hello")status();
