@@ -72,16 +72,20 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 #endBgA,#endBgB{transition:opacity 1.6s ease}
 /* OP の導入：止めの間は薄い黒の窓、動き出したら窓なしで映像の上に直接 */
 #textLayer.intro-box,#textLayer.intro-free{background:none}
-#textLayer.intro-box #text{background:rgba(0,0,0,.5);padding:2.2em 3em 1.6em;border-radius:4px;box-shadow:0 0 60px rgba(0,0,0,.5);transition:background 1.2s ease,box-shadow 1.2s ease}
-#textLayer.intro-free #text{background:rgba(0,0,0,0);padding:2.2em 3em 1.6em;box-shadow:none;transition:background 1.2s ease,box-shadow 1.2s ease;text-shadow:0 0 8px #000,0 2px 18px #000,0 0 3px #000}
+/* 窓は文章の量にかかわらず決まった大きさ（大きめ）。文字はその中に */
+#textLayer.intro-box #text,#textLayer.intro-free #text{box-sizing:border-box;width:min(84vw,1600px);height:66vh;display:flex;flex-direction:column;justify-content:center;padding:4vh 4.5vw;border-radius:4px;overflow:hidden;font-size:clamp(18px,1.9vw,36px);line-height:1.9;transition:background 1.2s ease,box-shadow 1.2s ease}
+#textLayer.intro-box #text{background:rgba(0,0,0,.55);box-shadow:0 0 80px rgba(0,0,0,.5)}
+#textLayer.intro-free #text{background:rgba(0,0,0,0);box-shadow:none;text-shadow:0 0 8px #000,0 2px 18px #000,0 0 3px #000}
+#text p.fade{opacity:0;transform:translateY(6px);filter:blur(2px);transition:opacity 1s ease,transform 1s ease,filter 1s ease}
+#text p.fade.in{opacity:1;transform:none;filter:none}
+#text p.fade.in.gone{opacity:0;transition:opacity .9s ease}
 #textLayer.onvid{background:radial-gradient(120% 90% at 50% 50%,rgba(0,0,0,.46),rgba(0,0,0,.78))}
 #text{width:min(78vw,1400px);font-size:clamp(20px,2.35vw,44px);line-height:2;letter-spacing:.06em;text-shadow:0 2px 14px #000}
 #text p{margin:0 0 .7em;transition:opacity 1.4s ease,filter 1.4s ease}
 #text p.old{opacity:.5}
 #text p.gone{opacity:0}
 #text p.line{color:#f3d9a0}
-#textLayer.intro-box #text p.old,#textLayer.intro-free #text p.old{opacity:.82}
-#textLayer.intro-box #text{font-size:clamp(18px,1.9vw,36px)}
+
 #textLayer.intro-box #text p.line:first-child{letter-spacing:.2em}
 #text .c{opacity:0;animation:in .45s ease forwards}
 @keyframes in{from{opacity:0;filter:blur(3px)}to{opacity:1;filter:none}}
@@ -117,7 +121,7 @@ video{width:100%;height:100%;object-fit:cover;background:#000}
 <div class="layer" id="start"><b>REQUIEⅢ　モニター画面</b><span>このウィンドウをモニターに移動してから、<br>画面をクリックしてください（全画面になり、音が出せるようになります）。</span><span id="mediaState" style="color:#efe6d4">素材を確認中…</span></div>
 
 <script>
-const BUILD="2026-11-27-12";
+const BUILD="2026-11-27-13";
 const C=window.THEATER_CONFIG;const $=id=>document.getElementById(id);
 const ch=new BroadcastChannel("requie3-theater");
 let story=null;
@@ -180,6 +184,17 @@ function playVideo(key,r){return new Promise((res,rej)=>{const v=$("fxVideo"),sr
 });}
 
 // ---------- ルール説明など：背景の上の薄い黒の窓に、台本の文章（script）を1画面ずつ出す。最後の画面は残す ----------
+async function showPage(page,r){
+  const box=$("text");box.innerHTML="";skipPara=false;
+  const lines=[];for(const line of page.split("\n").map(x=>x.trim()).filter(Boolean)){if(/^【/.test(line))lines.push({t:line,h:true});else splitBlocks(line).forEach(b=>lines.push({t:b.t,h:b.line}));}
+  for(const l of lines){if(r!==run)throw"stop";if(st.paused)await waitResume(r);
+    const el=document.createElement("p");el.className="fade"+(l.h?" line":"");el.textContent=l.t;box.appendChild(el);void el.offsetWidth;el.classList.add("in");
+    if(!skipPara)await sleep(700,r);}
+  skipPara=false;return lines.map(l=>l.t).join("").length;}
+// →（次の段落）が押されるまで待つ
+const waitNext=r=>new Promise((res,rej)=>{skipPara=false;(function tick(){if(r!==run)return rej("stop");if(skipPara){skipPara=false;return res();}setTimeout(tick,100);})();});
+// 決まった時間待つ（→で先へ）
+async function waitOrNext(ms,r){skipPara=false;let t=0;while(t<ms){if(r!==run)throw"stop";if(skipPara){skipPara=false;return;}if(!st.paused)t+=100;await new Promise(x=>setTimeout(x,100));}}
 async function typeLines(page,r){for(const line of page.split("\n").map(x=>x.trim()).filter(Boolean)){
   if(/^【/.test(line)){await typePara(line,r,true);continue;}
   for(const blk of splitBlocks(line))await typePara(blk.t,r,blk.line);}}
@@ -188,9 +203,9 @@ async function playScript(sc,r){
   $("text").innerHTML="";$("textLayer").classList.remove("onvid","intro-free");$("textLayer").classList.add("intro-box");show1("textLayer",true);
   try{await sleep(1200,r);
     for(st.pi=0;st.pi<pages.length;st.pi++){
-      st.label=(sc.title||"")+" "+(st.pi+1)+"/"+pages.length;status();
-      await typeLines(pages[st.pi],r);
-      if(st.pi<pages.length-1){await sleep(600,r);await clearText(r);await sleep(400,r);}
+      st.label=(sc.title||"")+" "+(st.pi+1)+"/"+pages.length+"（→で次へ）";status();
+      await showPage(pages[st.pi],r);
+      if(st.pi<pages.length-1){await waitNext(r);await clearText(r);await sleep(300,r);}
     }
     st.label=(sc.title||"")+"（終わり）";status();
   }catch(e){}
@@ -213,8 +228,8 @@ async function playIntro(sc,i,r){
     for(st.pi=0;st.pi<paras.length;st.pi++){
       if(sc.intro.playFrom&&paras[st.pi].includes(sc.intro.playFrom))go();
       st.label="オープニング｜導入 "+(st.pi+1)+"/"+paras.length;status();
-      await typeLines(paras[st.pi],r);
-      await sleep(600,r);await clearText(r);await sleep(400,r);
+      const n=await showPage(paras[st.pi],r);
+      await waitOrNext(Math.max(3500,n*130),r);await clearText(r);await sleep(300,r);
     }
     go();
     while(!v.ended){if(r!==run)throw"stop";await sleep(300,r);}   // 文章が先に終わったら OP の終わりまで待つ

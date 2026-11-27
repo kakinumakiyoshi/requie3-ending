@@ -14,7 +14,10 @@ window.THEATER_CONFIG = {
     legion_missile: "media/legion_missile.mp4", // レギオンEND：館の屋根にミサイル → 黒煙
     legion_moonlight: "media/legion_moonlight.mp4", // レギオンEND：地下の天井の穴から月明かり（外へ出られる＝助けが来た）
     biagio_steps: "media/biagio_steps.mp4",   // ビアージョ側END：知らない男たちのブーツが岩の階段を駆け降りてくる（元の4秒まで）
-    biagio_city: "media/biagio_city.mp4"      // ビアージョ側END：荒れ果てた街を高い所から見下ろす
+    biagio_city: "media/biagio_city.mp4",     // ビアージョ側END：荒れ果てた街を高い所から見下ろす
+    eternal_king: "media/eternal_king.mp4",   // 永遠王が復活するエピローグ：骸へドリーで寄り、目に青い炎がともる
+    skull_dolly: "media/skull_dolly.mp4",     // 永遠王の骸へドリーで寄るだけ（Blender の ek_dolly、炎なし）
+    skull_shot: "media/skull_shot.mp4"        // 骸がガラス越しに撃たれる：バン！でガラスにひびと穴、おでこに穴（元の2秒まで）
   },
 
   // BGMファイル（mp3推奨・ループ再生）
@@ -41,7 +44,8 @@ window.THEATER_CONFIG = {
   //   at    ："start"＝章の最初 / "end"＝章の最後 / それ以外の文字＝その文字を含む段落が出た直後
   //   video ：上の videos の名前
   cues: [
-    // ジョナEND：電灯が灯る段落のあと／館のあるじが外へ出る段落のあと
+    // ジョナEND：章の初め（骸が何ひとつ変わらぬ姿で鎮座）で骸のドリー → 電灯が灯る段落 → 館のあるじが外へ出る段落
+    { seg: "^MAIN_A_JOHN_COOK_END$", at: "start", video: "skull_dolly" },
     { seg: "^MAIN_A_JOHN_COOK_END$", at: "一斉に全ての電灯が灯り", video: "jonah_lights" },
     { seg: "^MAIN_A_JOHN_COOK_END$", at: "1階のドアから悠々と外へ出て", video: "jonah_exit" },
     // レギオンEND：「ドォーン！」で屋上が爆発する段落のあと、ミサイル → 地下の天井の穴から月明かり（続けて流す）
@@ -50,7 +54,16 @@ window.THEATER_CONFIG = {
     // ビアージョ側END（MAIN_C）：チンピラ達が地下へ押し寄せる段落で足元、街の段落で俯瞰（最後まで背景に残る）
     { seg: "^MAIN_C_", at: "突然地下へ押し寄せ", video: "biagio_steps" },
     { seg: "^MAIN_C_A_", at: "街は荒れ果て", video: "biagio_city" },
-    { seg: "^MAIN_C_B_", at: "街はヴァルチャーズによって支配されていた", video: "biagio_city" }
+    { seg: "^MAIN_C_B_", at: "街はヴァルチャーズによって支配されていた", video: "biagio_city" },
+    // 永遠王が復活するエピローグ（ビアージョ／私は帰ってきた）：章の初めから流し、終わったら最後のコマのまま章の終わりまで
+    { seg: "^EPILOGUE_C_1_BIAGIO_JOHN_END$", at: "start", video: "eternal_king" },
+    // ルカが骸を「撃つ／撃たない」を選ぶ章：章の初めから骸のドリー
+    { seg: "^CONDITION_B_LUCA_BETWEEN_END$", at: "start", video: "skull_dolly" },
+    // 骸を撃つ章：ビアンカ（または託された人）が撃つ「銃口を向ける」段落／ルカが撃つ段落
+    { seg: "^CONDITION_B_KING_DESTROYED_", at: "銃口を向ける", video: "skull_shot" },
+    { seg: "^CONDITION_B_LUCA_SHOOT_END$", at: "撃ち続けた", video: "skull_shot" },
+    // 永遠王の骸が破壊されなかったエピローグ（ビアンカの息子リオに別の人格が宿る）：「男の声が聞こえる」段落から最後まで
+    { seg: "^EPILOGUE_B_CHILD_JOHN_END$", at: "男の声が聞こえる", video: "eternal_king" }
   ],
 
   // 背景用の静止画（ゆっくり動かして表示します）
